@@ -1,0 +1,23 @@
+---
+title: "2024 UPGG Bootcamp - Data Exploration"
+author: "RP Pornmongkolsuk & Natalie Dzikowski"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Data Exploration and Clean-Up
+
+## Refresher
+Here's a refresher on how to download the dataset and load it into the "R environment".
+
+```{r download data}
+library(tidyverse)
+periodically_expressed_genes_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset02.txt.gz"
+periodically_expressed_genes <- read_lines(periodically_expressed_genes_file)
+```
+
+# 
