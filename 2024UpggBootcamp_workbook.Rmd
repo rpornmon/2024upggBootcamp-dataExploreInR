@@ -5,6 +5,12 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+Learning objectives:
+* Download and inspect data using R
+* Explore data in a scientically motivated way
+* Organize and manipulate data in preparation for summary and visualization
+
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
@@ -14,10 +20,41 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Refresher
 Here's a refresher on how to download the dataset and load it into the "R environment".
 
+
+
+## Download data
 ```{r download data}
 library(tidyverse)
 periodically_expressed_genes_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset02.txt.gz"
 periodically_expressed_genes <- read_lines(periodically_expressed_genes_file)
 ```
 
-# 
+## Explore data
+Try "printing" the values contained in the variable `periodically_expressed_genes`.
+```{r}
+periodically_expressed_genes
+print(periodically_expressed_genes)
+```
+
+`periodically_expressed_genes` is a "vector" data type. It is similar to an "array" or a "list" in some other programming languages, BUT R has its own version of "list." Essentially, R has both "vector" and "list" data types, and they function differently. "Vectors" are what you would think of when you think of Python's "array" or "list"
+
+
+### Vector
+A "vector" is a list of values that, importantly, are of the same type. This is the most common data type in R. 
+
+```{r}
+v1 <- c() # Empty vector
+v2 <- c(1) # Vector of length 1 and of type numeric
+v3 <- c("Hello", "World") # Vector of length 2 and of type character
+v4 <- c(1, "hi", TRUE, 1+2) # R is smart enough to coerce the type of all element into one that can be applied to all of them -- in this case, character, designated by " marks.
+print(v4)
+```
+
+### List
+List is a more flexible data tye - it can contain a mixture elements of various data types.
+
+
+
+### Data Frame 
+This is arguably the most useful feature of R. There's a reason we use spreadsheets. 
+And it is particularly efficient too. 
