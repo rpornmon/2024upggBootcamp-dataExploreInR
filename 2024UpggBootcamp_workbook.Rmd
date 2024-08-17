@@ -50,11 +50,98 @@ v4 <- c(1, "hi", TRUE, 1+2) # R is smart enough to coerce the type of all elemen
 print(v4)
 ```
 
+
+## Download annotation
+```{r}
+ribi_annotation_file <- "ribosome_biogenesis_annotations.txt"
+
+read_lines(ribi_annotation_file, n_max = 10)
+```
+
+```{r}
+ribi_annotation <- read_tsv(ribi_annotation_file, comment = "!")
+```
+
+```{r}
+str(periodically_expressed_genes)
+```
+
+
+```{r}
+names(ribi_annotation)
+ribi_annotation
+```
+
+
 ### List
-List is a more flexible data tye - it can contain a mixture elements of various data types.
+List is a more flexible data type - it can contain a mixture elements of various data types.
 
 
 
 ### Data Frame 
 This is arguably the most useful feature of R. There's a reason we use spreadsheets. 
 And it is particularly efficient too. 
+
+```{r}
+ribi_annotation
+```
+
+
+```{r}
+my_tib <- tibble(mtcars)
+```
+
+```{r}
+names(my_tib)
+```
+
+## Tidyverse 
+1. What is Tidyverse?
+Tidyverse is a collection of R packages that had been designed and developed for data science. R is not a new language, and Tidyverse's philosophy is about reducing the things in R that didn't stand the test of time and introducing cleaner, more understandable grammar into the coding style. 
+
+Tibble 
+A table is one of the most common way to store and understand data. Think about a spreadsheet like Excel or Google Sheets. It portrays multi-dimentional data and its relational information between data points across columns. So the basis of data exploration and cleanup begins with a table. R has a built-in data structure that looks like a table called `data frame`. Tidyverse attempts to improve on `data frame` and came up with `tibble`. In general, they are about equivalent in terms of function. For the sake of this lesson, we'll use `tibble` as any Tidyverse read function would output a `tibble` by default. This is one way to instantiate a tibble. Key components are column names and values. Each column can only contain one data type.
+```{r}
+df1 <- data.frame(x = c(1,2), y = c(3,4))
+df2 <- tibble(x = c(1,2), y = c(3,4))
+df1
+df2
+```
+You can convert any existing data frame into a tibble.
+```{r}
+as_tibble(iris)
+```
+
+Subsetting
+```{r}
+df <- tibble(
+  x = runif(5),
+  y = rnorm(5)
+)
+# Extract by name 1
+df$x
+# Extract by name 2
+df[["x"]]
+# Extract by column index 1
+df[[1]]
+# Extract by column index 2
+df[,1]
+```
+
+
+```{r}
+str(parse_logical(c("TRUE", "FALSE", "NA")))
+
+```
+
+Tidydata
+1. Each variable must have its own column
+2. Each observation must have its own row
+3. Each value must have its own cell
+
+```{r}
+table1 %>%
+    count(year, wt = cases)
+```
+
+Pivoting data
