@@ -17,6 +17,32 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Data Exploration and Clean-Up
 
+## Blank et al., 2017 Transcriptomics Dataset
+As a UPGG student, you might end up dealing with some type of "-omics" dataset (epigenomics, transcriptomics, proteomics, maybe multiomics!). Today, we'll be exploring and cleaning up a transcriptomics dataset from the following paper: 
+
+*[Translational control of lipogenic enzymes in the cell cycle of synchronous, growing yeast cells](https://www.embopress.org/doi/full/10.15252/embj.201695050)* 
+
+### What was the goal of the study?
+
+The authors were searching for proteins that are under periodic translational control over the course of the cell cycle in yeast, using the size of the cell as a marker for cell cycle stage.
+
+- Are there any proteins whose levels change depending on the stage of the cell cycle (a.k.a. the size of the cell)?
+- Is the change in protein level due to transcriptional control (at the mRNA level), or translational control (at the protein level)?
+
+### Which datasets will we be looking at?
+
+Dataset 1: **A dataframe** of mRNA levels of over 6000 transcripts analyzed in THIS study. Specifically, the authors took the normalized read counts of each mRNA transcript, at each different cell size, found the mean read count for each gene across all of the cell sizes, and expressed the mRNA levels of each gene as a ratio of the level at each cell size over the mean. These ratios were then log2-transformed.
+
+Dataset 2: **A vector** of 144 transcripts whose levels were found to fluctuate over the course of the cell cycle, both in this study, and in *Spellman et. al, 1998*. These are the genes under "periodic transcriptional control".
+
+In addition to these, we will need help from some gene annotation files to understand the data. 
+
+### Who cares?
+
+mRNA sequncing has been fundamental to genomics research. It's very possible you might generate data like this in your own research. You may be analying changing mRNA levels in the cell due to a normal cellular process, or due to some genetic, epigenetic, or chemical perturbation you did in an experiment. 
+
+What if you never do mRNA sequencing? Still, at some point, you may have to deal with data formatted in a really similar way (protein levels, fluorescence on DNA microarrays, etc.).
+
 ## Refresher
 Here's a refresher on how to download the dataset and load it into the "R environment".
 
@@ -25,6 +51,8 @@ Here's a refresher on how to download the dataset and load it into the "R enviro
 ## Download data
 ```{r download data}
 library(tidyverse)
+mRNA_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset01.txt.gz"
+mRNA_data <- read_lines(mRNA_file)
 periodically_expressed_genes_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset02.txt.gz"
 periodically_expressed_genes <- read_lines(periodically_expressed_genes_file)
 ```
@@ -145,3 +173,182 @@ table1 %>%
 ```
 
 Pivoting data
+
+## Let's look the data from the paper
+
+## Headers, Comments, etc.
+
+Often times, a dataframe will have a few lines of information that explain its contents to the reader, as we saw in our ribi annotation file. There may also be a header that labels each column. Let's check if our mRNA dataframe has any of those:
+
+```{r}
+head(mRNA_data)
+```
+
+It looks like there is one header line at the very beginning. Let's keep this in mind. 
+
+Let's also double check there aren't any extra lines at the end of the file, just in case:
+
+```{r}
+tail(mRNA_data)
+```
+Looks good! Let's make this into a tibble, so that the header is recognized.
+
+```{r}
+mRNA <- read_tsv(mRNA_file)
+```
+### Exercise 1: How many transcripts were analyzed in total?
+
+```{r}
+length(mRNA_data)
+```
+
+There are 6714 lines, so without the header, there are 6713 entries.
+
+Or, just check out the tibble:
+
+```{r}
+mRNA
+```
+
+### Exercise 2: How many periodically expressed genes did Blank et. al and Spellman et. al find in common?
+
+```{r}
+length(periodically_expressed_genes)
+```
+
+Only 144 genes were identified as "periodically expressed" during the cell cycle, when data from both papers was intersected.
+
+`length()` is a good way to get an overview of a dataset, but can we always be sure that each line corresponds to a unique gene? What if there are duplicates?
+
+```{r}
+mRNA
+```
+```{r}
+n_distinct(mRNA$ORF)
+
+n_distinct(periodically_expressed_genes)
+```
+
+Looks like every entry is unique.
+### Let's explore our ribi annotation file
+
+Earlier, we cleaned up the annotation file for the ribosome biogenesis genes. 
+
+Recap: How did we do this?
+```{r}
+ribi_annotation <- read_tsv(ribi_annotation_file, comment = "!")
+```
+
+This created a dataframe object, while marking any line starting with "!" as a comment, and not part of the dataframe itself. The header will still be read into the dataframe, since it was not marked with a "!".
+
+
+Now we can view the contents and structure:
+
+```{r}
+ribi_annotation
+```
+
+```{r}
+str(ribi_annotation)
+```
+
+### Which parts of the dataframe are we interested in?
+
+The datasets in this study named transcripts by their gene IDs, specific to *S. cerevisiae* - these can be found in the column 'Systematic Name/Complex Accession'. The 'Gene/Complex' column provides a more common name for that gene. 
+
+Additionally, we have the column "Gene Ontology Term" for each gene, associating it with a biological process. The file we downloaded was called `ribosome_biogenesis_annotations.txt`, so we'd probably assume that these are only genes involved in ribosome biogenesis. 
+
+Still, let's double check that to be sure!
+
+```{r}
+n_distinct(ribi_annotation$Qualifier)
+
+distinct(ribi_annotation, Qualifier)
+```
+
+```{r}
+n_distinct(ribi_annotation$`Gene Ontology Term`)
+
+distinct(ribi_annotation, `Gene Ontology Term`)
+```
+
+So, clearly, we only have genes involved in ribosome biogenesis. 
+
+The most useful part of this annotation file will be to convert the yeast gene IDs into more common names for downtstream analyses.
+
+### Exercise 3 (Discussion): 
+
+Why do you think we provided 1 argument for the `n_distinct()` function, but 2 arguments for `distinct()` ? 
+
+### Cleaning up the annotation file
+
+First, let's take only the columns we want from the dataframe:
+
+```{r}
+ribi_annotation_names <- select(ribi_annotation, Gene = "Gene/Complex", SystematicName = "Systematic Name/Complex Accession")
+
+ribi_annotation_names
+```
+
+Next, we should check if there are any duplicate gene entries, or if each line is unique. 
+
+### Exercise 4: Check the number of unique gene name/systematic name combinations. Are there duplicates?
+
+*Hint: You only have to use functions we have already learned.*
+
+```{r}
+ribi_annotation_names
+
+n_distinct(ribi_annotation_names)
+```
+Uh oh. Looks like there are duplicates we don't want.
+
+### Exercise 5: First, create a new dataframe object with duplicates removed. Then, double-check that this was done correctly.
+
+```{r}
+ribi_genes <- distinct(ribi_annotation_names)
+
+ribi_genes
+
+n_distinct(ribi_genes)
+```
+
+Looks like our whole dataframe is made up of distinct entries now!
+
+### Which ribosome biogenesis genes are periodically expressed during the cell cycle?
+
+```{r}
+ribi_genes_periodic <- filter(ribi_genes, SystematicName %in% periodically_expressed_genes)
+
+ribi_genes_periodic
+```
+
+By doing this, we are just searching for the Systematic Names of the genes in the ribi annotation file that pop up in the list of 144 periodically expressed genes.
+
+We can now see that 34/144 periodically expressed genes are involved in ribosome biogenesis (or that 34/187 ribosome biogenesis genes are periodically expressed during the cell cycle). 
+
+We can also check if our favorite gene is on this list! It would be easy enough to do manually, but let's pretend our dataframe is still really long...
+
+```{r}
+"NUG1" %in% ribi_genes_periodic$Gene
+```
+
+It's there! Let's print the line to see what its Systematic Name is.
+
+```{r}
+filter(ribi_genes_periodic, Gene == "NUG1")
+```
+
+What about a different gene?
+
+```{r}
+"RPS6B" %in% ribi_genes_periodic$Gene
+```
+
+```{r}
+filter(ribi_genes_periodic, Gene == "RPS6B")
+```
+
+Oops. That one's not there.
+
+
