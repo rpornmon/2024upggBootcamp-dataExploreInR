@@ -176,7 +176,6 @@ Pivoting data
 
 ## Let's look the data from the paper
 
-## Headers, Comments, etc.
 
 Often times, a dataframe will have a few lines of information that explain its contents to the reader, as we saw in our ribi annotation file. There may also be a header that labels each column. Let's check if our mRNA dataframe has any of those:
 
@@ -230,7 +229,7 @@ n_distinct(periodically_expressed_genes)
 ```
 
 Looks like every entry is unique.
-### Let's explore our ribi annotation file
+## Let's explore our ribi annotation file
 
 Earlier, we cleaned up the annotation file for the ribosome biogenesis genes. 
 
@@ -280,7 +279,7 @@ The most useful part of this annotation file will be to convert the yeast gene I
 
 Why do you think we provided 1 argument for the `n_distinct()` function, but 2 arguments for `distinct()` ? 
 
-### Cleaning up the annotation file
+## Cleaning up the annotation file
 
 First, let's take only the columns we want from the dataframe:
 
@@ -315,7 +314,7 @@ n_distinct(ribi_genes)
 
 Looks like our whole dataframe is made up of distinct entries now!
 
-### Which ribosome biogenesis genes are periodically expressed during the cell cycle?
+## Which ribosome biogenesis genes are periodically expressed during the cell cycle?
 
 ```{r}
 ribi_genes_periodic <- filter(ribi_genes, SystematicName %in% periodically_expressed_genes)
@@ -339,8 +338,9 @@ It's there! Let's print the line to see what its Systematic Name is.
 filter(ribi_genes_periodic, Gene == "NUG1")
 ```
 
-What about a different gene?
+### Exercise 6: Check whether the gene "RPS6B" is a periodically expressed gene, and try printing its line to see its systematic name.
 
+Solution:
 ```{r}
 "RPS6B" %in% ribi_genes_periodic$Gene
 ```
@@ -349,6 +349,187 @@ What about a different gene?
 filter(ribi_genes_periodic, Gene == "RPS6B")
 ```
 
-Oops. That one's not there.
+Oops! That one's not there.
+
+## What about genes with other functions?
+
+Up until now, we were looking only at ribosome biogenesis genes, since that was a major GO term that came up in the data. What about the genes involved in other biological processes?
+
+### Download annotations from Dryad
+
+You should have been able to download the Data Folder from [Dryad](https://datadryad.org/stash/dataset/doi:10.5061/dryad.d644f) yesterday.
+
+### Exercise 7: Practice unzipping the folder and moving the file `scer-mrna-protein-absolute-estimate.txt` into your ./data directory, using only the command line.
+
+```{bash}
+gunzip -dk ../Downloads/doi_10_5061_dryad_d644f__v20160422.zip
+
+mv ../Downloads/doi_10_5061_dryad_d644f__v20160422/scer-mrna-protein-absolute-estimate.txt ./data
+```
+
+Let's read the file
+
+```{r}
+scer_names_estimates_file <- "../data/scer-mrna-protein-absolute-estimate.txt"
+
+read_lines(scer_names_estimates_file, n_max = 10)
+```
+How would you turn this into a tibble, ignoring the comments starting with a "#" ?
+```{r}
+scer_names_estimates <- read_tsv(scer_names_estimates_file, comment = "#")
+
+str(scer_names_estimates)
+```
+
+The columns `"orf"` and `"gene"` will be useful to us for now. 
+
+### Exercise #8: Create a new dataframe with only the columns `"orf"` and `"gene"`.
+```{r}
+scer_gene_names <- select(scer_names_estimates, Gene = gene, SystematicName = orf)
+```
+
+### Challenge: 
+1. Get the names of genes from the Dryad annotations that are periodically expressed.
+2. Extract only the common gene names from the output of 1.
+3. Is the gene NOP56 on this list?
+
+```{r}
+filter(scer_gene_names, SystematicName %in% periodically_expressed_genes)
+
+filter(scer_gene_names, SystematicName %in% periodically_expressed_genes) %>% select(Gene)
+
+filter(scer_gene_names, SystematicName %in% periodically_expressed_genes, Gene == "NOP56")
+
+filter(scer_gene_names, Gene == "NOP56")
+
+YLR197W" %in% periodically_expressed_genes
+```
+
+Looks like NOP56 is not periodically expressed (but it definitely is in the gene annotation file). To double-check, its systematic name is indeed not in the list of periodically expressed genes.
+
+### Exploring more of the Dryad data
+
+This dataset actually has a lot more interesting information, like mRNA and protein levels for each gene. To explore these columns, we can use the `arrange()` function. This will allow us to sort the dataframe according to a variable we're interested in.
+
+```{r}
+arrange(scer_names_estimates, gene)
+```
+
+The default is ascending order. 
+
+```{r}
+arrange(scer_names_estimates, gene) %>% tail()
+```
+
+What would this do?
+
+```{r}
+arrange(scer_names_estimates, desc(gene))
+```
+
+What about this?
+
+```{r}
+arrange(scer_names_estimates, desc(gene), mrna)
+```
+
+Wait, can't we just use `sort()` instead or `arrange()`?
+
+```{r}
+arrange(scer_names_estimates, desc(gene), mrna) %>% tail()
+```
+
+With `arrange()`, NA values automatically get put the end, regardless of whether you're arranging in ascending or descending order. This makes removal or data exploration more convenient.
 
 
+## Let's put the two biggest datasets together
+
+What if our favorite gene is periodically expressed, but it was only identified in the 2017 study, but not the 1998 study? (This would mean it was never included in `periodically_expressed_genes`).
+
+Well, we have access to all of the mRNA data (>6000 transcripts), and a comprehensive annotation set from Dryad. Let's put these two together to see what's happening to ALL of the genes, so then we can check what's happening to our favorite genes.
+
+There are a bunch of ways to join datasets together on common keys. We can try out a bunch of these `join` methods and see what we get.
+
+A "key" that both datasets have in common is the "systematic name". However, this list of gene IDs is labeled "SystematicName" in the Dryad annotations, but labeled "ORF" in Dataset01 (mRNA). Let's change the name of one of the columns to match:
+
+```{r}
+names(mRNA)[1] <- "SystematicName"
+
+mRNA
+```
+
+Let's perform a `left_join()` on the two datasets, following this format:
+
+`joined_df <- left_join(x, y, by = "key")`
+
+This will take all rows of dataframe 'x', & keep all of the columns in 'x', while merging dataframe 'y' on the desired key and appending columns from 'y', with values that correctly correspond to each key.
+
+That might sound confusing at first, so let's just see what happens:
+
+```{r}
+mRNA_named <- left_join(mRNA, scer_gene_names, by = "SystematicName")
+
+mRNA_named
+```
+
+This will let us search (via their common names) whether our favorite genes are indeed periodically expressed. For example:
+
+```{r}
+filter(mRNA_named, Gene %in% c("ACT1", "NOP16", "NOP56"))
+```
+
+There are definitely some fluctuations in mRNA. Interesting! Maybe they just didn't make the cut according to the parameters/thresholds used by the authors; or, maybe they just weren't identified in both the 2017 and 1998 papers. Following the authors' methodology, your data is now set up for you to find the culprit (on your own time, if you're interested). 
+
+## Saving your work
+
+You've done all this work - be sure to save it now!
+
+```{r}
+write_csv(mRNA_named, "../data/mRNA_data_with_gene_names.csv")
+```
+
+## Reshaping tibbles
+
+Sometimes, we might want to reshape a tibble to make it better formatted for plotting/visualization later on. For example, let's go back to Dataset01:
+
+```{r}
+mRNA
+
+gather(mRNA_named,key=Vol,value="log2_ratio",-SystematicName,-Gene)
+```
+
+What do you notice changed about Dataset01?
+
+This is easier to deal with now, if we want to visualize the data. But let's make our lives even easier with the help of a few additional functions:
+
+```{r}
+gather(mRNA_named,key=Vol,value="log2_ratio",-SystematicName,-Gene) %>%
+    separate(Vol,into="Vol_fL")
+```
+
+```{r}
+gather(mRNA_named,key=Vol,value="log2_ratio",-SystematicName,-Gene) %>%
+    separate(Vol,into="Vol_fL")  %>%
+    mutate(Vol_fL = as.numeric(Vol_fL))
+```
+
+Wait, doesn't that look exactly the same? What was the purpose of `mutate()`?
+
+```{r}
+mRNA_data_gathered <- 
+gather(mRNA_data,key=Vol,value="log2_ratio",-Name,-Gene) %>%
+    separate(Vol,into="Vol_fL") %>%
+    mutate(Vol_fL = as.numeric(Vol_fL))
+```
+
+Now, we can easily pick 3 genes we're most interested in, and plot their fluctuating mRNA levels over the course of the cell cycle!
+
+Let's save that information into a small dataframe, and then Kayla and Gabe will guide you through plotting.
+
+```{r}
+mRNA_data_3genes <- filter(mRNA_data_gathered, Gene %in% c("ACT1","NOP16","NOP56"))
+```
+
+(If you'd like, you can save this as a .csv as well).
+
+## Questions?
