@@ -79,7 +79,7 @@ print(v4)
 ```
 
 
-## Download annotation
+## Download ribosome biogenesis annotations
 ```{r}
 ribi_annotation_file <- "ribosome_biogenesis_annotations.txt"
 
@@ -355,7 +355,7 @@ Oops! That one's not there.
 
 Up until now, we were looking only at ribosome biogenesis genes, since that was a major GO term that came up in the data. What about the genes involved in other biological processes?
 
-### Download annotations from Dryad
+### Download full gene annotations from Dryad
 
 You should have been able to download the Data Folder from [Dryad](https://datadryad.org/stash/dataset/doi:10.5061/dryad.d644f) yesterday.
 
