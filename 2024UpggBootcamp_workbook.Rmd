@@ -100,27 +100,163 @@ names(ribi_annotation)
 ribi_annotation
 ```
 
+### Vectors
+
+Vectors have some specific properties that you can call pretty handily with built-in functions. 
+```{r}
+# prints the type of elements contained within vector
+typeof(v4)
+# Prints the length of the vector
+length(v4)
+```
+
+Concatenate vectors
+```{r}
+v5 <- c(v3, v4)
+print(v5)
+```
+
+Vector arithmatic 
+```{r}
+x <- c(1, 2, 3, 4)
+x * 2
+```
+
+Vector recycling
+```{r}
+y <- c(5, 6, 7)
+x + y
+```
+
+Common statistical functions
+```{r}
+sum(x)
+min(x)
+max(x)
+mean(x)
+median(x)
+sd(x)
+```
+
+```{r}
+summary(x)
+```
+
+Indexing vectors 
+R uses the 1-based indexing system, meaning the first element begins at 1. (Python, for example, is a zero-based indexing system.)
+```{r}
+x
+x[1]
+x[-1]
+x[3:4]
+x[4:1]
+x[1:length(x)-1]
+```
 
 ### List
-List is a more flexible data type - it can contain a mixture elements of various data types.
+List is a more flexible data type - it can contain a mixture elements of various data types. We'll go through this really quickly.
+
+Creating a list
+```{r}
+my_list <- list("Hello", 1, TRUE) # Mixed types of element
+print(my_list)
+```
+
+```{r}
+length(my_list)
+```
+
+
+Indexing a list
+```{r}
+my_list[[1]]
+```
+
+Appending a list, list can contain vector
+```{r}
+my_list[[5]] <- 1:10
+my_list
+```
+
+Indexing
+```{r}
+my_list[[5]][7]
+```
+
+
+A list within a list
+```{r}
+my_list[[4]] <- list("World")
+my_list
+```
+
+```{r}
+my_list[[4]][[1]]
+```
 
 
 
 ### Data Frame 
-This is arguably the most useful feature of R. There's a reason we use spreadsheets. 
+This is arguably the most useful feature of R. There's a reason we use spreadsheets, they show data in inter-relational fashion. 
 And it is particularly efficient too. 
 
+Creating a data frame
 ```{r}
-ribi_annotation
+df <- data.frame(1:5,
+                 6:10)
+df
 ```
 
-
+Think of data frame as like a stack of vectors (each column). To be able to make sense of the data, we want to add column names to designate what the values mean.
 ```{r}
-my_tib <- tibble(mtcars)
+names(df)
+names(df) <- c("first.column", "second.column")
+names(df) # Note how codes are evaluated line-by-line sequentially?
+```
+
+You can think of a data frame as a specialized type of `list` (with constraints), where each vector is an element of the list. BUT the number of rows must be of the same lengths. 
+```{r}
+typeof(df)
 ```
 
 ```{r}
-names(my_tib)
+length(df)
+df[[2]]
+```
+
+Properties of data frame
+```{r}
+dim(df)
+ncol(df)
+nrow(df)
+```
+
+Indexing, extracting information from data frame
+```{r}
+df[[1]] # Same as list
+```
+
+```{r}
+df$first.column # Most common way to do it
+```
+
+R is a row-based, meaning first index refers to the row number, then column number
+```{r}
+df[1,2] # row 1, column 2
+```
+
+Or, you can call by column name, and index like a normal vector.
+```{r}
+df$second.column[1]
+```
+
+R has some built-in data frames that you can play with. 
+```{r}
+mtcars
+```
+
+```{r}
+iris
 ```
 
 ## Tidyverse 
@@ -129,6 +265,21 @@ Tidyverse is a collection of R packages that had been designed and developed for
 
 Tibble 
 A table is one of the most common way to store and understand data. Think about a spreadsheet like Excel or Google Sheets. It portrays multi-dimentional data and its relational information between data points across columns. So the basis of data exploration and cleanup begins with a table. R has a built-in data structure that looks like a table called `data frame`. Tidyverse attempts to improve on `data frame` and came up with `tibble`. In general, they are about equivalent in terms of function. For the sake of this lesson, we'll use `tibble` as any Tidyverse read function would output a `tibble` by default. This is one way to instantiate a tibble. Key components are column names and values. Each column can only contain one data type.
+```{r}
+my_tib <- tibble(mtcars)
+```
+
+```{r}
+names(my_tib)
+```
+
+Conventionally, each row contains observations, each column contains variables, and each cell contains values. 
+```{r}
+mtcars
+```
+
+
+
 ```{r}
 df1 <- data.frame(x = c(1,2), y = c(3,4))
 df2 <- tibble(x = c(1,2), y = c(3,4))
@@ -142,37 +293,168 @@ as_tibble(iris)
 
 Subsetting
 ```{r}
-df <- tibble(
+tb <- tibble(
   x = runif(5),
   y = rnorm(5)
 )
 # Extract by name 1
-df$x
+tb$x
 # Extract by name 2
-df[["x"]]
+tb[["x"]]
 # Extract by column index 1
-df[[1]]
+tb[[1]]
 # Extract by column index 2
-df[,1]
+tb[,1]
 ```
 
+## Dplyr
+Tidyverse is a meta-package, meaning it includes multiple packages within it. One of them is `dplyr` which contains functions involving common data manipulation task.
 
 ```{r}
-str(parse_logical(c("TRUE", "FALSE", "NA")))
-
+table1
 ```
 
-Tidydata
-1. Each variable must have its own column
-2. Each observation must have its own row
-3. Each value must have its own cell
+### Select()
+```{r}
+select(table1, year)
+```
 
+### Filter()
+Compare to base R, tidyverse is trying to reduce redundancy of repeating the name of the variable. 
+```{r}
+table1[table1$year == 2000,]
+```
+
+```{r}
+filter(table1, year == 2000) # Much cleaner
+```
+
+Chaining different functions become wordy and unintuitive to read. Tidyverse tries to mitigate this problem by introducing its own grammar structure that helps aligning code with how your brain would normally work. Sequentiality is important.
+```{r}
+select(filter(table1, year == 2000), country)
+```
+Instead, you can use `pipe`, this is now even cleaner than before, you only have to type the name `table1` once. 
 ```{r}
 table1 %>%
-    count(year, wt = cases)
+    filter(year == 2000) %>%
+    select(country)
+table1 %>%
+    filter(country == "Afghanistan") %>%
+    select(-country)
 ```
 
-Pivoting data
+### Mutate()
+Mutate is a very powerful function. It adds another column, and you can pull information from different
+```{r}
+table1 %>%
+    mutate(rate = cases / population * 10000) # This doesn't happen in-place. Don't forget to assign it to the same variable or new variable. 
+```
+
+Note on naming, you don't want to include spaces
+```{r}
+my_tib$'miles per gallon' <- 1:32 
+my_tib$'miles per gallon'
+
+my_tib %>% 
+    filter(miles per gallon > 10)
+# space has meaning in programming!!! 
+
+my_tib %>%
+    filter(`miles per gallon` > 10) # DON"T DO THIS
+
+my_tib$miles_per_gallon <- 1:32
+
+```
+
+### Arrange()
+```{r}
+table1 %>%
+    mutate(rate = cases / population * 10000) %>%
+    arrange(desc(rate))
+```
+
+### Pivoting data
+The principles of tidy data seem so obvious that you might wonder if you’ll ever encounter a dataset that isn’t tidy. Unfortunately, however, most data that you will encounter will be untidy. There are two main reasons:
+
+Most people aren’t familiar with the principles of tidy data, and it’s hard to derive them yourself unless you spend a lot of time working with data.
+
+Data is often organised to facilitate some use other than analysis. For example, data is often organised to make entry as easy as possible.
+
+This means for most real analyses, you’ll need to do some tidying. The first step is always to figure out what the variables and observations are. Sometimes this is easy; other times you’ll need to consult with the people who originally generated the data. The second step is to resolve one of two common problems:
+
+One variable might be spread across multiple columns.
+
+One observation might be scattered across multiple rows.
+
+Typically a dataset will only suffer from one of these problems; it’ll only suffer from both if you’re really unlucky! To fix these problems, you’ll need the two most important functions in tidyr: pivot_longer() and pivot_wider().
+
+
+```{r}
+table4a
+```
+
+1999 and 2000 are recording of the same variable (cases) but from different years. It is intuitive to place them in different columns next to each other if we want to compare by eyes. But in plotting, you might want to merge them into one column called "cases". Kayla and Gabriel will talk more about this in the afternoon. 
+```{r}
+table4a %>%
+    pivot_longer(c('1999', '2000'), 
+                 names_to = "year", # What should we call the new column that will contain the original names?
+                 values_to = "cases") # What should we call the new column that will contain the original values?
+```
+Note that year is of type `chr`
+```{r}
+table4a %>%
+    pivot_longer(c('1999', '2000'), 
+                 names_to = "year", # What should we call the new column that will contain the original names?
+                 values_to = "cases") %>% # What should we call the new column that will contain the original values? 
+    mutate(year = parse_double(year))
+```
+
+### Pivot Wider
+```{r}
+table2
+```
+
+```{r}
+table2 %>%
+    pivot_wider(names_from = type, # what should the new column names be
+                values_from = count) # where should the values in new column come from
+```
+
+
+
+### Summarize()
+```{r}
+table1 %>%
+    summarize(max = max(cases), mean = mean(cases))
+```
+
+### Group_by()
+```{r}
+table1 %>%
+    group_by(year) %>%
+    count
+```
+
+
+Summarize within group
+```{r}
+table1 %>%
+    group_by(year) %>%
+    summarize(max(cases), mean(cases))
+```
+
+### Exercise
+I'll make some dirty, dummy data and let them
+1. Load data
+2. Rename columns
+3. Mutate a new column
+4. Sort the column
+5. Remove NAs
+6. Remove unused columns
+7. Pivot longer/wider
+
+
+<<<<<<< Updated upstream
 
 ## Let's look the data from the paper
 
@@ -533,3 +815,6 @@ mRNA_data_3genes <- filter(mRNA_data_gathered, Gene %in% c("ACT1","NOP16","NOP56
 (If you'd like, you can save this as a .csv as well).
 
 ## Questions?
+=======
+Pivoting data is important 
+>>>>>>> Stashed changes
