@@ -810,7 +810,7 @@ yesterday.
 Let's read the file
 
 ```{r}
-scer_names_estimates_file <- "../data/scer-mrna-protein-absolute-estimate.txt"
+scer_names_estimates_file <- "scer-mrna-protein-absolute-estimate.txt"
 
 read_lines(scer_names_estimates_file, n_max = 10)
 ```
@@ -848,7 +848,7 @@ filter(scer_gene_names, SystematicName %in% periodically_expressed_genes, Gene =
 
 filter(scer_gene_names, Gene == "NOP56")
 
-YLR197W %in% periodically_expressed_genes
+"YLR197W" %in% periodically_expressed_genes
 ```
 
 Looks like NOP56 is not periodically expressed (but it definitely is in
@@ -963,10 +963,12 @@ Sometimes, we might want to reshape a tibble to make it better formatted
 for plotting/visualization later on. For example, let's go back to
 Dataset01:
 
-```{r}
-mRNA
 
-gather(mRNA_named,key=Vol,value="log2_ratio",-SystematicName,-Gene)
+```{r}
+mRNA_named
+
+pivot_longer(mRNA_named, cols = ends_with("fL"), names_to = "Vol_fL", values_to = "log2_ratio") %>%
+    mutate(Vol_fL = parse_double(str_remove(Vol_fL, " fL")))
 ```
 
 What do you notice changed about Dataset01?
