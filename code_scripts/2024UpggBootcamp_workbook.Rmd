@@ -102,7 +102,7 @@ print(periodically_expressed_genes)
 an "array" or a "list" in some other programming languages, BUT R has
 its own version of "list." Essentially, R has both "vector" and "list"
 data types, and they function differently. "Vectors" are what you would
-think of when you think of Python's "array" or "list"
+think of when you think of Python's "array" or "list" 
 
 ## Download ribosome biogenesis annotations
 
@@ -572,7 +572,7 @@ table1 %>%
 
 I'll make some dirty, dummy data and let them 1. Load data 2. Rename
 columns 3. Mutate a new column 4. Sort the column 5. Remove NAs 6.
-Remove unused columns 7. Pivot longer/wider
+Remove unused columns 7. Pivot longer/wider 8. Change data type
 
 ```{r}
 length(mRNA_data)
@@ -732,6 +732,17 @@ n_distinct(ribi_annotation_names)
 Uh oh. Looks like there are duplicates we don't want.
 
 ### Exercise 5: First, create a new dataframe object with duplicates removed. Then, double-check that this was done correctly.
+
+```{r}
+filter(df, pattern)
+
+df %<>%
+    filter(pattern)
+
+df <- df %>%
+    filter(pattern)
+```
+
 
 ```{r}
 ribi_genes <- distinct(ribi_annotation_names)
