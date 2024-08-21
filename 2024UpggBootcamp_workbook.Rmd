@@ -684,7 +684,7 @@ filter(scer_gene_names, SystematicName %in% periodically_expressed_genes, Gene =
 
 filter(scer_gene_names, Gene == "NOP56")
 
-YLR197W" %in% periodically_expressed_genes
+YLR197W %in% periodically_expressed_genes
 ```
 
 Looks like NOP56 is not periodically expressed (but it definitely is in the gene annotation file). To double-check, its systematic name is indeed not in the list of periodically expressed genes.
@@ -732,7 +732,7 @@ Well, we have access to all of the mRNA data (>6000 transcripts), and a comprehe
 
 There are a bunch of ways to join datasets together on common keys. We can try out a bunch of these `join` methods and see what we get.
 
-A "key" that both datasets have in common is the "systematic name". However, this list of gene IDs is labeled "SystematicName" in the Dryad annotations, but labeled "ORF" in Dataset01 (mRNA). Let's change the name of one of the columns to match:
+A "key" that both datasets have in common is the "systematic name". However, this list of gene IDs is labeled "SystematicName" in the Dryad annotations, but labeled "ORF" in Dataset01 (mRNA). Let's change the name of one of the columns to match: 
 
 ```{r}
 names(mRNA)[1] <- "SystematicName"
