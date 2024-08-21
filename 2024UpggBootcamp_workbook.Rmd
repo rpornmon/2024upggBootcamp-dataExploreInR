@@ -812,7 +812,11 @@ Let's save that information into a small dataframe, and then Kayla and Gabe will
 mRNA_data_3genes <- filter(mRNA_data_gathered, Gene %in% c("ACT1","NOP16","NOP56"))
 ```
 
-(If you'd like, you can save this as a .csv as well).
+Save this just in case:
+
+```{r}
+write_csv(mRNA_data_3genes, "../data/mRNA_data_3genes.csv")
+```
 
 ## Questions?
 =======
