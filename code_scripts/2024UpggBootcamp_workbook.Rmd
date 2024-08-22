@@ -8,9 +8,12 @@ editor_options:
     wrap: 100
 ---
 
-Learning objectives: \* Download and inspect data using R \* Learn how to use Tidyverse functions \*
-Explore data in a scientifically motivated way \* Organize and manipulate data in preparation for
-summary and visualization
+Learning objectives:
+
+-   Download and inspect data using R
+-   Learn how to use Tidyverse functions
+-   Explore data in a scientifically motivated way
+-   Organize and manipulate data in preparation for summary and visualization
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -18,15 +21,17 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Data Exploration and Clean-Up
 
-Introduce self.
+Introduce self. Housekeeping.
 
-Points to go through 1. Utilize green-red sticky 2. HackMD 3. Resources, Kayla's printed cheat
-sheets 4. Survey
+1.  Utilize green-red sticky
+2.  HackMD
+3.  Resources, Kayla's printed cheatsheets
+4.  Survey
 
-The first hald of this morning, we'll go through the package called `Tidyverse` which you all should
+The first half of this morning, we'll go through the package called `Tidyverse` which you all should
 have installed as part of the lesson yesterday. Red sticky if you don't have `Tidyverse` installed.
 
-## Data structure
+## Data structure (\~30 min)
 
 ### Refresher on Data Types
 
@@ -40,7 +45,7 @@ names.
 Basically, numbers that we know very well. You can perform mathematical operations on them. The
 types of numeric values you are going to encounter the most are:
 
-1a. "Double" - represent real numbers (whole numbers and decimals). It is the default value for
+1a. `Double` - represent real numbers (whole numbers and decimals). It is the default value for
 whole numbers.
 
 > Reminder about shortcut for making new chunk - `cmd + option + i`
@@ -51,7 +56,7 @@ typeof(20.24)
 typeof(pi) # R has built-in constants, e.g., pi
 ```
 
-1b. "Integer" - represent whole numbers only.
+1b. `Integer` - represent whole numbers only.
 
 Whole numbers are defaulted to `double`. You have to tell R explicitly that a value is `integer`.
 
@@ -61,11 +66,26 @@ typeof(as.integer(10))
 
 You are unlikely to come across a case where `double` and `integer` will make significant changes to
 your code/performance, but it's good to be aware of the different types of numeric values. Another
-key point is that, arithmatic operation will automatically coerce `integer` to `double` if needs be.
+key point is that, arithmetic operation will automatically coerce `integer` to `double` if needs be.
 
 ```{r}
 x <- as.integer(10)
 typeof(x + 11.5)
+```
+
+Examples of operations you can perform on numeric values.
+
+```{r}
+x <- 3 # Reminder about value assignment
+y <- 4
+
+x + y # add
+x - y # subtract
+x * y # multiply
+x / y # divide
+x ** y # exponent
+x^y # exponent
+103 %% 10 # modulo
 ```
 
 **Valid variable names** There are some names you ***can't*** use as variable names, and they are
@@ -107,21 +127,6 @@ TRUE <- FALSE
 ```
 
 4.  Avoid naming variables the same as function names
-
-Examples of operations you can perform on numeric values.
-
-```{r}
-x <- 3 # Reminder about value assignment
-y <- 4
-
-x + y # add
-x - y # subtract
-x * y # multiply
-x / y # divide
-x ** y # exponent
-x^y # exponent
-103 %% 10 # modulo
-```
 
 #### 2. Logical
 
@@ -177,7 +182,7 @@ xor(TRUE, FALSE) # either x or y, but not both
 xor(TRUE, TRUE) 
 ```
 
-#### Character strings
+#### 3. Character strings
 
 Characters are created by using the `"` (double quote) or `'` (single quote) enclosing them.
 
@@ -195,7 +200,7 @@ name <- "Justin"
 nchar(name)
 ```
 
-Simple strings operations - joining strings using `paste()` and `paste0()` and spliting strings
+Simple strings operations - joining strings using `paste()` and `paste0()` and splitting strings
 using `strsplit()`.
 
 ***Check whether or not they know how to see possible options for a function***
@@ -256,7 +261,7 @@ v5 <- c(v3, v4)
 print(v5)
 ```
 
-Vector arithmatic
+Vector arithmetic
 
 ```{r}
 x <- c(1, 2, 3, 4)
@@ -491,7 +496,7 @@ mtcars
 iris
 ```
 
-## Tidyverse
+## Tidyverse (\~30 min)
 
 What is [Tidyverse](https://www.tidyverse.org/)? Tidyverse is a collection of R packages that had
 been designed and developed for data science. R is not a new language, and Tidyverse's philosophy is
@@ -677,7 +682,8 @@ my_tib %>%
 my_tib$miles_per_gallon <- 1:32 # much better
 ```
 
-#### Quick lesson on conditionals 
+#### Quick lesson on conditionals
+
 You can guide R to perform tasks that depend on a certain condition using `if` statement.
 
 ```{r}
@@ -687,6 +693,7 @@ if (10 > 5) {
 ```
 
 You can create a dichotomy of tasks for R using `if` and `else` statement.
+
 ```{r}
 plant_speed <- 1000
 car_speed <- 40
@@ -698,7 +705,9 @@ if (plane_speed > car_speed) {
 }
 ```
 
-There is a nifty function called `if_else()` that you can use within `mutate()` to create a new column!
+There is a nifty function called `if_else()` that you can use within `mutate()` to create a new
+column!
+
 ```{r}
 table1 %>%
   mutate(size = if_else(population > 1e8, "big", "small"))
@@ -815,7 +824,7 @@ dummy
 
 We'll use this dummy data to practice tools that we learned today!
 
-## Exercise
+## Exercise (\~20 min)
 
 1.  Load `dummy.csv` file from
     `"https://github.com/rpornmon/2024upggBootcamp-dataExploreInR/raw/main/raw_data/dummy.csv`, if
@@ -1378,5 +1387,3 @@ write_csv(mRNA_data_3genes, "../processed_files/mRNA_data_3genes.csv")
 ```
 
 # \## Questions?
-
-Pivoting data is important
