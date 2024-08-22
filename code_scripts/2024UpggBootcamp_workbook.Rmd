@@ -241,8 +241,13 @@ x + 2 # x is no longer numeric
 
 ### Vectors
 
-A "vector" is a list of values that, importantly, are of the same type.
-This is the most common data type in R.
+Vectors are the core data structure in R. They store an **ordered list
+of items**, notably all of the same data type (aka **homogeneous**). The
+idea is very similar to a `list` or an `array` in other languages,
+**BUT** `lists` do exist in R, and they are a different data structure
+altogether.
+
+To create a vector, use `c()` - this is refresher from last lesson.
 
 ```{r}
 v1 <- c() # Empty vector
@@ -256,30 +261,44 @@ Vectors have some specific properties that you can call pretty handily
 with built-in functions.
 
 ```{r}
-# prints the type of elements contained within vector
-typeof(v4)
-# Prints the length of the vector
-length(v4)
+typeof(v4) # Prints the type of elements contained within vector
+length(v4) # Prints the length of the vector
+length(10) # A value can be considered a vector of length 1
 ```
 
-Concatenate vectors
+Concatenate vectors using `c()`
 
 ```{r}
 v5 <- c(v3, v4)
 print(v5)
 ```
 
-Vector arithmatic
+Vector arithmatic -\> applies to each and every element within vector
 
 ```{r}
 x <- c(1, 2, 3, 4)
 x * 2
+x > 2 # Even logical operations apply!
+```
+
+Create a sequence
+
+```{r}
+1:10
+20:15
+seq(1,10,2)
+runif(10, 1, 100) # try ?runif
 ```
 
 Vector recycling (can skip this)
 
+Performing operations between two vectors of varying lenghts, R will
+recycle elements of the shorter vector.
+
 ```{r}
 y <- c(5, 6, 7)
+x
+y
 x + y
 ```
 
@@ -298,17 +317,38 @@ sd(x)
 summary(x)
 ```
 
-Indexing vectors R uses the 1-based indexing system, meaning the first
-element begins at 1. (Python, for example, is a zero-based indexing
-system.)
+#### Indexing
+
+Indexing vectors in R uses the 1-based indexing system, meaning the
+first element begins at 1. Python, for example, is a zero-based indexing
+system.
 
 ```{r}
 x
-x[1]
-x[-1]
-x[3:4]
-x[4:1]
-x[1:length(x)-1]
+x[1] # obtain the first element
+x[-1] # obtain all but first element
+x[-2] # all but second element
+x[3:4] # 3rd-4th elements
+x[4:1] # reverse order
+rev(x)
+x[1:length(x)-1] # exclude last element, flexible for any vector
+x[c(TRUE,FALSE,TRUE,TRUE)] # exclude second element
+```
+
+Get indexes using `which()`
+
+```{r}
+x >= 2
+which(x >= 2)
+```
+
+##### Exercise
+
+Use what you learned about vector to return a vector containing elements
+within `a` that is **greater** than 30.
+
+```{r}
+a <- runif(20, 1, 100)
 ```
 
 ### List
@@ -726,8 +766,8 @@ fluctuate over the course of the cell cycle, both in this study, and in
 *Spellman et. al, 1998*. These are the genes under "periodic
 transcriptional control".
 
-In addition to these, we will need help from 2 gene annotation files
-to understand the data.
+In addition to these, we will need help from 2 gene annotation files to
+understand the data.
 
 ### Who cares?
 
@@ -786,19 +826,22 @@ think of when you think of Python's "array" or "list"
 str(periodically_expressed_genes)
 ```
 
-`periodically_expressed_genes` is really clean data. What about `mRNA_data`?
+`periodically_expressed_genes` is really clean data. What about
+`mRNA_data`?
 
 ```{r}
 mRNA_data
 ```
 
-This one has a header. Luckily, if we turn the file into a tibble, that header will be recognized immediately.
+This one has a header. Luckily, if we turn the file into a tibble, that
+header will be recognized immediately.
 
 ```{r}
 mRNA <- read_tsv(mRNA_file)
 ```
 
-Remember, the output of many tidyverse functions will automatically be a tibble! Applying read_tsv to a data file can accomplish this.
+Remember, the output of many tidyverse functions will automatically be a
+tibble! Applying read_tsv to a data file can accomplish this.
 
 Now let's peek inside the ribosome biogenesis annotations:
 
@@ -811,6 +854,7 @@ Here, we can see that comments are marked with a "!"
 ### Exercise: How can we make a tibble that skips these?
 
 *Solution:*
+
 ```{r}
 ribi_annotation <- read_tsv(ribi_annotation_file, comment = "!")
 
@@ -818,11 +862,12 @@ ribi_annotation
 ```
 
 What about for the Dryad annotations?
+
 ```{r}
 read_lines(scer_names_estimates_file, n_max = 10)
 ```
- 
- Skip comments:
+
+Skip comments:
 
 ```{r}
 scer_names_estimates <- read_tsv(scer_names_estimates_file, comment = "#")
@@ -832,7 +877,9 @@ scer_names_estimates
 
 ## What can we learn about the data?
 
-One of the first things you might be curious about is how many transcripts were analyzed in total, and how many genes ended up making it on the "periodically expressed" list.
+One of the first things you might be curious about is how many
+transcripts were analyzed in total, and how many genes ended up making
+it on the "periodically expressed" list.
 
 How can we get these values?
 
@@ -850,15 +897,16 @@ length(periodically_expressed_genes)
 
 And 144 genes were periodically expressed.
 
-But we're using tidyverse, so we don't even need `length()`. Just peek at the tibble, the information is right there!
+But we're using tidyverse, so we don't even need `length()`. Just peek
+at the tibble, the information is right there!
 
 ```{r}
 mRNA
 ```
 
-We just got a decent overview of the data, but can we
-always be sure that each line corresponds to a unique gene? What if
-there are duplicates?
+We just got a decent overview of the data, but can we always be sure
+that each line corresponds to a unique gene? What if there are
+duplicates?
 
 ### Exercise: Check whether there are duplicate entries in `mRNA` and in `periodically_expressed_genes`.
 
@@ -870,7 +918,7 @@ n_distinct(mRNA$ORF)
 n_distinct(periodically_expressed_genes)
 ```
 
-Looks like every entry is unique. 
+Looks like every entry is unique.
 
 ## Let's explore our ribi annotation file
 
@@ -880,10 +928,10 @@ Which parts of this dataframe are we interested in?
 ribi_annotation
 ```
 
-The datasets in this study identified transcripts by their gene IDs, specific only 
-to *S. cerevisiae* - these can be found in the column 'Systematic
-Name/Complex Accession'. The 'Gene/Complex' column provides a more
-common name for that gene.
+The datasets in this study identified transcripts by their gene IDs,
+specific only to *S. cerevisiae* - these can be found in the column
+'Systematic Name/Complex Accession'. The 'Gene/Complex' column provides
+a more common name for that gene.
 
 Additionally, we have the column "Gene Ontology Term" for each gene,
 associating it with a biological process. The file we downloaded was
@@ -920,7 +968,7 @@ but 2 arguments for `distinct()` ?
 
 ## Cleaning up the annotation file
 
-### Exercise: Take only the columns we want from the dataframe: the gene names and the systematic IDs. 
+### Exercise: Take only the columns we want from the dataframe: the gene names and the systematic IDs.
 
 *Solution:*
 
@@ -941,7 +989,6 @@ each line is unique.
 n_distinct(ribi_annotation_names)
 ```
 
-
 ```{r}
 ribi_genes <- distinct(ribi_annotation_names)
 
@@ -954,7 +1001,8 @@ Looks like our whole dataframe is made up of distinct entries now!
 
 ## Which ribosome biogenesis genes are periodically expressed during the cell cycle?
 
-We want to filter `ribi_genes` to only include the ones that appear in the periodically_expressed_genes, and make this a new dataframe.
+We want to filter `ribi_genes` to only include the ones that appear in
+the periodically_expressed_genes, and make this a new dataframe.
 
 ```{r}
 ribi_genes_periodic <- filter(ribi_genes, SystematicName %in% periodically_expressed_genes)
@@ -966,8 +1014,8 @@ We can now see that 34/144 periodically expressed genes are involved in
 ribosome biogenesis (or that 34/187 ribosome biogenesis genes are
 periodically expressed during the cell cycle).
 
-**Note:**
-There are often many ways to arrive at the same solution, even for the same function!
+**Note:** There are often many ways to arrive at the same solution, even
+for the same function!
 
 ```{r}
 
@@ -1152,7 +1200,8 @@ write_csv(mRNA_named, "../processed_files/mRNA_data_with_gene_names.csv")
 
 Sometimes, we might want to reshape a tibble to make it better formatted
 
-for plotting/visualization later on. Dataset01 can be reshaped into a longer, and less wide, format:
+for plotting/visualization later on. Dataset01 can be reshaped into a
+longer, and less wide, format:
 
 ```{r}
 mRNA_named
@@ -1164,7 +1213,8 @@ pivot_longer(mRNA_named,cols = ends_with("fL"),
 
 What do you notice changed about Dataset01?
 
-We might run into issues if all of the cell volumes are formatted as a "(integer) fL".
+We might run into issues if all of the cell volumes are formatted as a
+"(integer) fL".
 
 ## Exercise: Look through your cheat sheets. What function(s) can we pipe to remove the " fL" from every value in the "Vol_fL" column?
 
