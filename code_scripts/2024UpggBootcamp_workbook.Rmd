@@ -19,111 +19,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Data Exploration and Clean-Up
 
-## Blank et al., 2017 Transcriptomics Dataset
 
-As a UPGG student, you might end up dealing with some type of "-omics"
-dataset (epigenomics, transcriptomics, proteomics, maybe multiomics!).
-Today, we'll be exploring and cleaning up a transcriptomics dataset from
-the following paper:
-
-[*Translational control of lipogenic enzymes in the cell cycle of
-synchronous, growing yeast
-cells*](https://www.embopress.org/doi/full/10.15252/embj.201695050)
-
-### What was the goal of the study?
-
-The authors were searching for proteins that are under periodic
-translational control over the course of the cell cycle in yeast, using
-the size of the cell as a marker for cell cycle stage.
-
--   Are there any proteins whose levels change depending on the stage of
-    the cell cycle (a.k.a. the size of the cell)?
--   Is the change in protein level due to transcriptional control (at
-    the mRNA level), or translational control (at the protein level)?
-
-### Which datasets will we be looking at?
-
-Dataset 1: **A dataframe** of mRNA levels of over 6000 transcripts
-analyzed in THIS study. Specifically, the authors took the normalized
-read counts of each mRNA transcript, at each different cell size, found
-the mean read count for each gene across all of the cell sizes, and
-expressed the mRNA levels of each gene as a ratio of the level at each
-cell size over the mean. These ratios were then log2-transformed.
-
-Dataset 2: **A vector** of 144 transcripts whose levels were found to
-fluctuate over the course of the cell cycle, both in this study, and in
-*Spellman et. al, 1998*. These are the genes under "periodic
-transcriptional control".
-
-In addition to these, we will need help from some gene annotation files
-to understand the data.
-
-### Who cares?
-
-mRNA sequncing has been fundamental to genomics research. It's very
-possible you might generate data like this in your own research. You may
-be analying changing mRNA levels in the cell due to a normal cellular
-process, or due to some genetic, epigenetic, or chemical perturbation
-you did in an experiment.
-
-What if you never do mRNA sequencing? Still, at some point, you may have
-to deal with data formatted in a really similar way (protein levels,
-fluorescence on DNA microarrays, etc.).
-
-## Refresher
-
-Here's a refresher on how to download the dataset and load it into the
-"R environment".
-
-## Download data
-
-#### We want to change this part to load from local files? ####
-```{r download data}
-library(tidyverse)
-mRNA_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset01.txt.gz"
-mRNA_data <- read_lines(mRNA_file)
-periodically_expressed_genes_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset02.txt.gz"
-periodically_expressed_genes <- read_lines(periodically_expressed_genes_file)
-```
-
-## Explore data
-
-Try "printing" the values contained in the variable
-`periodically_expressed_genes`.
-
-[@akaike1974]
-
-```{r}
-periodically_expressed_genes
-print(periodically_expressed_genes)
-```
-
-`periodically_expressed_genes` is a "vector" data type. It is similar to
-an "array" or a "list" in some other programming languages, BUT R has
-its own version of "list." Essentially, R has both "vector" and "list"
-data types, and they function differently. "Vectors" are what you would
-think of when you think of Python's "array" or "list" 
-
-## Download ribosome biogenesis annotations
-
-```{r}
-ribi_annotation_file <- "ribosome_biogenesis_annotations.txt"
-
-read_lines(ribi_annotation_file, n_max = 10)
-```
-
-```{r}
-ribi_annotation <- read_tsv(ribi_annotation_file, comment = "!")
-```
-
-```{r}
-str(periodically_expressed_genes)
-```
-
-```{r}
-names(ribi_annotation)
-ribi_annotation
-```
 
 ### Vectors
 
@@ -578,6 +474,111 @@ Remove unused columns 7. Pivot longer/wider 8. Change data type
 length(mRNA_data)
 ```
 
+## Blank et al., 2017 Transcriptomics Dataset
+
+As a UPGG student, you might end up dealing with some type of "-omics"
+dataset (epigenomics, transcriptomics, proteomics, maybe multiomics!).
+Today, we'll be exploring and cleaning up a transcriptomics dataset from
+the following paper:
+
+[*Translational control of lipogenic enzymes in the cell cycle of
+synchronous, growing yeast
+cells*](https://www.embopress.org/doi/full/10.15252/embj.201695050)
+
+### What was the goal of the study?
+
+The authors were searching for proteins that are under periodic
+translational control over the course of the cell cycle in yeast, using
+the size of the cell as a marker for cell cycle stage.
+
+-   Are there any proteins whose levels change depending on the stage of
+    the cell cycle (a.k.a. the size of the cell)?
+-   Is the change in protein level due to transcriptional control (at
+    the mRNA level), or translational control (at the protein level)?
+
+### Which datasets will we be looking at?
+
+Dataset 1: **A dataframe** of mRNA levels of over 6000 transcripts
+analyzed in THIS study. Specifically, the authors took the normalized
+read counts of each mRNA transcript, at each different cell size, found
+the mean read count for each gene across all of the cell sizes, and
+expressed the mRNA levels of each gene as a ratio of the level at each
+cell size over the mean. These ratios were then log2-transformed.
+
+Dataset 2: **A vector** of 144 transcripts whose levels were found to
+fluctuate over the course of the cell cycle, both in this study, and in
+*Spellman et. al, 1998*. These are the genes under "periodic
+transcriptional control".
+
+In addition to these, we will need help from some gene annotation files
+to understand the data.
+
+### Who cares?
+
+mRNA sequncing has been fundamental to genomics research. It's very
+possible you might generate data like this in your own research. You may
+be analying changing mRNA levels in the cell due to a normal cellular
+process, or due to some genetic, epigenetic, or chemical perturbation
+you did in an experiment.
+
+What if you never do mRNA sequencing? Still, at some point, you may have
+to deal with data formatted in a really similar way (protein levels,
+fluorescence on DNA microarrays, etc.).
+
+## Refresher
+
+Here's a refresher on how to download the dataset and load it into the
+"R environment".
+
+## Download data
+
+#### We want to change this part to load from local files? ####
+```{r download data}
+library(tidyverse)
+mRNA_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset01.txt.gz"
+mRNA_data <- read_lines(mRNA_file)
+periodically_expressed_genes_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset02.txt.gz"
+periodically_expressed_genes <- read_lines(periodically_expressed_genes_file)
+```
+
+## Explore data
+
+Try "printing" the values contained in the variable
+`periodically_expressed_genes`.
+
+[@akaike1974]
+
+```{r}
+periodically_expressed_genes
+print(periodically_expressed_genes)
+```
+
+`periodically_expressed_genes` is a "vector" data type. It is similar to
+an "array" or a "list" in some other programming languages, BUT R has
+its own version of "list." Essentially, R has both "vector" and "list"
+data types, and they function differently. "Vectors" are what you would
+think of when you think of Python's "array" or "list" 
+
+## Download ribosome biogenesis annotations
+
+```{r}
+ribi_annotation_file <- "ribosome_biogenesis_annotations.txt"
+
+read_lines(ribi_annotation_file, n_max = 10)
+```
+
+```{r}
+ribi_annotation <- read_tsv(ribi_annotation_file, comment = "!")
+```
+
+```{r}
+str(periodically_expressed_genes)
+```
+
+```{r}
+names(ribi_annotation)
+ribi_annotation
+```
 
 ## Let's look the data from the paper
 
