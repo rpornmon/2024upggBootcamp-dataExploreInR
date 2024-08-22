@@ -527,10 +527,6 @@ I'll make some dirty, dummy data and let them 1. Load data 2. Rename
 columns 3. Mutate a new column 4. Sort the column 5. Remove NAs 6.
 Remove unused columns 7. Pivot longer/wider 8. Change data type
 
-```{r}
-length(mRNA_data)
-```
-
 ## Blank et al., 2017 Transcriptomics Dataset
 
 As a UPGG student, you might end up dealing with some type of "-omics"
@@ -586,29 +582,23 @@ fluorescence on DNA microarrays, etc.).
 
 Let's load the relevant datasets that we downloaded yesterday.
 
-Are they in your /Downloads? If yes, no worries. Let's practice moving them to the ./raw_data directory.
+Are they in your /Downloads? If yes, no worries. 
 
-```{bash example file move}
-mv /Downloads/GSE81932_Dataset01.txt.gz /Desktop/2024upggBootcamp-dataExploreinR
-mv /Downloads/GSE81932_Dataset02.txt.gz /Desktop/2024upggBootcamp-dataExploreinR
-mv /Downloads/ribosome_biogenesis_annotations.txt /Desktop/2024upggBootcamp-dataExploreinR
-mv /Downloads/doi_10_5061_dryad_d644f__v20160422.zip /Desktop/2024upggBootcamp-dataExploreinR
-```
+## Exercise: Using the UNIX commands you learned yesterday, let's practice moving our downloaded data to the ./raw_data directory. Unzip any zipped files. 
 
-Let's extract it all now. 
-You could do this using some commands you learned yesterday! Or, we can do it in R:
+Now let's read into the files:
 
 ```{r load data}
 library(tidyverse)
-mRNA_file <- unzip("../raw_data/GSE81932_Dataset01.txt.gz", files = "GSE81932_Dataset01.txt")
+mRNA_file <- "../raw_data/GSE81932_Dataset01.txt"
 mRNA_data <- read_lines(mRNA_file)
 
-periodically_expressed_genes_file <- unzip("../raw_data/GSE81932_Dataset02.txt.gz", files = "GSE81932_Dataset02.txt")
+periodically_expressed_genes_file <- "../raw_data/GSE81932_Dataset02.txt"
 periodically_expressed_genes <- read_lines(periodically_expressed_genes_file)
 
 ribi_annotation_file <- "../raw_data/ribosome_biogenesis_annotations.txt"
 
-scer_names_estimates_file <- "../raw_data/scer-mrna-protein-absolute-estimate.txt"
+scer_names_estimates_file <- "../raw_data/doi_10_5061_dryad_d644f__v20160422/scer-mrna-protein-absolute-estimate.txt"
 ```
 
 ## Explore the data
@@ -819,10 +809,6 @@ There are often many ways to arrive at the same solution, even for the same func
 
 ribi_genes_periodic2 <- ribi_genes %>%
     filter(SystematicName %in% periodically_expressed_genes)
-
-ribi_genes %<>%
-    filter(SystematicName %in% periodically_expressed_genes)
-
 ```
 
 In this case, would you want to do option 2 from above? Why or why not?
@@ -995,7 +981,7 @@ for you to find the culprit (on your own time, if you're interested).
 You've done all this work - be sure to save it now!
 
 ```{r}
-write_csv(mRNA_named, "../data/mRNA_data_with_gene_names.csv")
+write_csv(mRNA_named, "../processed_files/mRNA_data_with_gene_names.csv")
 ```
 
 ## Reshaping tibbles
@@ -1029,7 +1015,7 @@ pivot_longer(mRNA_named,cols = ends_with("fL"),
 This looks easier to work with now. Let's save it to a new tibble:
 
 ```{r}
-mRNA_data_pivoted <- 
+mRNA_data_long <- 
 pivot_longer(mRNA_named,cols = ends_with("fL"), 
     names_to = "Vol_fL", 
         values_to="log2_ratio") %>%
@@ -1043,11 +1029,11 @@ Let's save that information into a small dataframe, and then Kayla and
 Gabe will guide you through plotting.
 
 ```{r}
-mRNA_data_3genes <- filter(mRNA_data_gathered, Gene %in% c("ACT1","NOP16","NOP56"))
+mRNA_data_3genes <- filter(mRNA_data_long, Gene %in% c("ACT1","NOP16","NOP56"))
 ```
 
 ```{r}
-write_csv(mRNA_data_3genes, "../data/mRNA_data_3genes.csv")
+write_csv(mRNA_data_3genes, "../processed_files/mRNA_data_3genes.csv")
 ```
 
 # \## Questions?
