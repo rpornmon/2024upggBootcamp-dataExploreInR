@@ -773,11 +773,78 @@ table2 %>%
                 values_from = count) # where should the values in new column come from
 ```
 
+
+## Readr
+`readr` contains functions involved in reading different types of data and import into R environment. 
+
+Base R has different read functions as well! For example, `read.table()` is a very versatile read function for tabular data. We are going to try to read a `.csv` file. 
+```{r}
+read.table
+```
+
+
 ##### Exercise
 
-I'll make some dirty, dummy data and let them 1. Load data 2. Rename
-columns 3. Mutate a new column 4. Sort the column 5. Remove NAs 6.
-Remove unused columns 7. Pivot longer/wider 8. Change data type
+I'll make some dirty, dummy data and let them 
+1. Load data 
+2. Rename columns 
+3. Mutate a new column 
+4. Sort the column 
+5. Remove NAs 
+6. Remove unused columns 
+7. Pivot longer/wider 8. Change data type
+
+```{r}
+dummy <- read_csv("../raw_data/dummy.csv")
+dummy
+```
+
+```{r}
+dummy
+```
+
+
+Rename the column names that have spaces, make them more readable. 
+```{r}
+dummy <- dummy %>%
+  rename(first_published = `first published`,
+         last_published = `last published (no data = ongoing)`,
+         no_vol = `number of volumes`)
+dummy
+```
+
+Summarize number of manga each author has published in this tibble. 
+```{r}
+dummy %>%
+  group_by(author) %>%
+  count() %>%
+  arrange(desc(n))
+```
+
+```{r}
+dummy %>%
+  mutate(last_published = parse_double(last_published),
+         ongoing = if_else(is.na(last_published), TRUE, FALSE))
+```
+
+
+Create a new column containing boolean values denoting whether or not the manga is still ongoing -- call it `ongoing`.
+```{r}
+dummy %>%
+  mutate(ongoing = )
+
+```
+
+Pivot tibble longer, combining `first_published` and `last_published` into one column called `year` and another column called `first_or_last`. 
+```{r}
+dummy %>%
+  mutate(last_published = parse_double(last_published)) %>%
+  pivot_longer(cols = c(first_published, last_published), names_to = "first_or_last", values_to = "year")
+
+```
+
+
+
 
 ## Blank et al., 2017 Transcriptomics Dataset
 
