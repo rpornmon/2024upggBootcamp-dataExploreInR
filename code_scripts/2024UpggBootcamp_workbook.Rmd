@@ -356,6 +356,8 @@ Here, we can see that comments are marked with a "!"
 
 *Solution:*
 
+-
+
 What about for the Dryad annotations?
 
 Skip comments:
@@ -383,7 +385,7 @@ unique gene? What if there are duplicates?
 
 *Solution:*
 
-Looks like every entry is unique.
+-
 
 ## Let's explore our ribi annotation file
 
@@ -403,6 +405,8 @@ Still, let's double check that to be sure!
 
 *Solution:*
 
+-
+
 So, clearly, we only have genes involved in ribosome biogenesis.
 
 The most useful part of this annotation file will be to convert the yeast gene IDs into more common
@@ -419,11 +423,15 @@ Why do you think we provided 1 argument for the `n_distinct()` function, but 2 a
 
 *Solution:*
 
+-
+
 Next, we should check if there are any duplicate gene entries, or if each line is unique.
 
 ### Exercise: Check the number of unique gene name/systematic name combinations. Are there duplicates? If yes, create a new dataframe with duplicates removed, and double-check that this was done correctly.
 
 *Solution:*
+
+-
 
 Looks like our whole dataframe is made up of distinct entries now!
 
@@ -450,7 +458,7 @@ It's there! Let's print the line to see what its Systematic Name is.
 
 *Solution:*
 
-Oops! That one's not there.
+-
 
 ## What about genes with other functions?
 
@@ -469,8 +477,7 @@ Let's create a new dataframe with only these columns.
 2.  Extract only the common gene names from the output of 1.
 3.  Is the gene NOP56 on this list?
 
-Looks like NOP56 is not periodically expressed (but it definitely is in the gene annotation file).
-To double-check, its systematic name is indeed not in the list of periodically expressed genes.
+-
 
 ### Exploring more of the Dryad data
 
@@ -540,6 +547,8 @@ We might run into issues if all of the cell volumes are formatted as a "(integer
 ## Exercise: Look through your cheat sheets. What function(s) can we pipe to remove the " fL" from every value in the "Vol_fL" column?
 
 *Solution:*
+
+-
 
 This looks easier to work with now. Let's save it to a new tibble:
 
