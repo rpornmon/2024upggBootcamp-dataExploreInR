@@ -19,7 +19,60 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Data Exploration and Clean-Up
 
+Introduce self.
 
+Points to go through
+1. Utilize green-red sticky
+2. HackMD
+3. Resources, Kayla's printed cheat sheets
+4. Survey
+
+The first hald of this morning, we'll go through the package called `Tidyverse` which you all should have installed as part of the lesson yesterday. Red sticky if you don't have `Tidyverse` installed.
+
+## Data structure
+
+
+### Refresher on Data Types
+We will do a quick refresher on data types in R which Krista has touched on a little bit yesterday. These are basically categories of values that computers can read and interpret in different ways. If you know other programming languages, these categories tend to overlap, though might have different names. 
+
+1. Numeric
+Basically, numbers that we know very well. You can perform mathematical operations on them. The types of numeric values you are going to encounter the most are:
+
+1a. "Double" - represent real numbers (whole numbers and decimals). It is the default value for whole numbers.
+
+> Reminder about shortcut for making new chunk - `cmd + option + i`
+
+```{r}
+typeof(10)
+typeof(20.24)
+typeof(pi) # R has built-in constants, e.g., pi
+```
+
+1b. "Integer" - represent whole numbers only. 
+
+Whole numbers are defaulted to `double`. You have to tell R explicitly that a value is `integer`. 
+```{r}
+typeof(as.integer(10))
+```
+
+You are unlikely to come across a case where `double` and `integer` will make significant changes to your code/performance, but it's good to be aware of the different types of numeric values. Another key point is that, arithmatic operation will automatically coerce `integer` to `double` if needs be.
+```{r}
+x <- as.integer(10)
+typeof(x + 11.5)
+```
+
+Examples of operations you can perform on numerica values. 
+```{r}
+x <- 3 # Reminder about value assignment
+y <- 4
+
+x + y # add
+x - y # subtract
+x * y # multiply
+x / y # divide
+x ** y # exponent
+103 %% 10 # modulo
+```
 
 ### Vectors
 
