@@ -294,6 +294,10 @@ Tidyverse is a literal gold mine, and there's no way we're going to cover
 everything in just a few hours! We're going to go through a few
 functions that are particularly useful and most commonly used.
 
+```{r load tidyverse}
+library(tidyverse)
+```
+
 ```{r}
 my_tib <- tibble(mtcars)
 ```
@@ -563,12 +567,12 @@ fluctuate over the course of the cell cycle, both in this study, and in
 *Spellman et. al, 1998*. These are the genes under "periodic
 transcriptional control".
 
-In addition to these, we will need help from some gene annotation files
+In addition to these, we will need help from 2 gene annotation files
 to understand the data.
 
 ### Who cares?
 
-mRNA sequncing has been fundamental to genomics research. It's very
+mRNA sequencing has been fundamental to genomics research. It's very
 possible you might generate data like this in your own research. You may
 be analying changing mRNA levels in the cell due to a normal cellular
 process, or due to some genetic, epigenetic, or chemical perturbation
@@ -578,23 +582,36 @@ What if you never do mRNA sequencing? Still, at some point, you may have
 to deal with data formatted in a really similar way (protein levels,
 fluorescence on DNA microarrays, etc.).
 
-## Refresher
+## Load data
 
-Here's a refresher on how to download the dataset and load it into the
-"R environment".
+Let's load the relevant datasets that we downloaded yesterday.
 
-## Download data
+Are they in your /Downloads? If yes, no worries. Let's practice moving them to the ./raw_data directory.
 
-#### We want to change this part to load from local files? ####
-```{r download data}
-library(tidyverse)
-mRNA_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset01.txt.gz"
-mRNA_data <- read_lines(mRNA_file)
-periodically_expressed_genes_file <- "ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE81nnn/GSE81932/suppl/GSE81932_Dataset02.txt.gz"
-periodically_expressed_genes <- read_lines(periodically_expressed_genes_file)
+```{bash example file move}
+mv /Downloads/GSE81932_Dataset01.txt.gz /Desktop/2024upggBootcamp-dataExploreinR
+mv /Downloads/GSE81932_Dataset02.txt.gz /Desktop/2024upggBootcamp-dataExploreinR
+mv /Downloads/ribosome_biogenesis_annotations.txt /Desktop/2024upggBootcamp-dataExploreinR
+mv /Downloads/doi_10_5061_dryad_d644f__v20160422.zip /Desktop/2024upggBootcamp-dataExploreinR
 ```
 
-## Explore data
+Let's extract it all now. 
+You could do this using some commands you learned yesterday! Or, we can do it in R:
+
+```{r load data}
+library(tidyverse)
+mRNA_file <- unzip("../raw_data/GSE81932_Dataset01.txt.gz", files = "GSE81932_Dataset01.txt")
+mRNA_data <- read_lines(mRNA_file)
+
+periodically_expressed_genes_file <- unzip("../raw_data/GSE81932_Dataset02.txt.gz", files = "GSE81932_Dataset02.txt")
+periodically_expressed_genes <- read_lines(periodically_expressed_genes_file)
+
+ribi_annotation_file <- "../raw_data/ribosome_biogenesis_annotations.txt"
+
+scer_names_estimates_file <- "../raw_data/scer-mrna-protein-absolute-estimate.txt"
+```
+
+## Explore the data
 
 Try "printing" the values contained in the variable
 `periodically_expressed_genes`.
@@ -612,85 +629,87 @@ its own version of "list." Essentially, R has both "vector" and "list"
 data types, and they function differently. "Vectors" are what you would
 think of when you think of Python's "array" or "list" 
 
-## Download ribosome biogenesis annotations
-
-```{r}
-ribi_annotation_file <- "ribosome_biogenesis_annotations.txt"
-
-read_lines(ribi_annotation_file, n_max = 10)
-```
-
-```{r}
-ribi_annotation <- read_tsv(ribi_annotation_file, comment = "!")
-```
-
 ```{r}
 str(periodically_expressed_genes)
 ```
 
-```{r}
-names(ribi_annotation)
-ribi_annotation
-```
-
-## Let's look the data from the paper
-
-Often times, a dataframe will have a few lines of information that
-explain its contents to the reader, as we saw in our ribi annotation
-file. There may also be a header that labels each column. Let's check if
-our mRNA dataframe has any of those:
+`periodically_expressed_genes` is really clean data. What about `mRNA_data`?
 
 ```{r}
-head(mRNA_data)
+mRNA_data
 ```
 
-It looks like there is one header line at the very beginning. Let's keep
-this in mind.
-
-Let's also double check there aren't any extra lines at the end of the
-file, just in case:
-
-```{r}
-tail(mRNA_data)
-```
-
-Looks good! Let's make this into a tibble, so that the header is
-recognized.
+This one has a header. Luckily, if we turn the file into a tibble, that header will be recognized immediately.
 
 ```{r}
 mRNA <- read_tsv(mRNA_file)
 ```
 
-### Exercise 1: How many transcripts were analyzed in total?
+Remember, the output of many tidyverse functions will automatically be a tibble! Applying read_tsv to a data file can accomplish this.
+
+Now let's peek inside the ribosome biogenesis annotations:
+
+```{r}
+read_lines(ribi_annotation_file, n_max=10)
+```
+
+Here, we can see that comments are marked with a "!"
+
+### Exercise: How can we make a tibble that skips these?
+
+*Solution:*
+```{r}
+ribi_annotation <- read_tsv(ribi_annotation_file, comment = "!")
+
+ribi_annotation
+```
+
+What about for the Dryad annotations?
+```{r}
+read_lines(scer_names_estimates_file, n_max = 10)
+```
+ 
+ Skip comments:
+
+```{r}
+scer_names_estimates <- read_tsv(scer_names_estimates_file, comment = "#")
+
+scer_names_estimates
+```
+
+## What can we learn about the data?
+
+One of the first things you might be curious about is how many transcripts were analyzed in total, and how many genes ended up making it on the "periodically expressed" list.
+
+How can we get these values?
+
+Here's a really easy, built-in way to do so:
 
 ```{r}
 length(mRNA_data)
 ```
 
-There are 6714 lines, so without the header, there are 6713 entries.
-
-Or, just check out the tibble:
-
-```{r}
-mRNA
-```
-
-### Exercise 2: How many periodically expressed genes did Blank et. al and Spellman et. al find in common?
+There are 6714 lines, so without the header, there are 6713 transcripts.
 
 ```{r}
 length(periodically_expressed_genes)
 ```
 
-Only 144 genes were identified as "periodically expressed" during the
-cell cycle, when data from both papers was intersected.
+And 144 genes were periodically expressed.
 
-`length()` is a good way to get an overview of a dataset, but can we
-always be sure that each line corresponds to a unique gene? What if
-there are duplicates?
+But we're using tidyverse, so we don't even need `length()`. Just peek at the tibble, the information is right there!
 
 ```{r}
 mRNA
 ```
+
+We just got a decent overview of the data, but can we
+always be sure that each line corresponds to a unique gene? What if
+there are duplicates?
+
+### Exercise: Check whether there are duplicate entries in `mRNA` and in `periodically_expressed_genes`.
+
+*Solution:*
 
 ```{r}
 n_distinct(mRNA$ORF)
@@ -698,35 +717,17 @@ n_distinct(mRNA$ORF)
 n_distinct(periodically_expressed_genes)
 ```
 
-Looks like every entry is unique. \## Let's explore our ribi annotation
-file
+Looks like every entry is unique. 
 
-Earlier, we cleaned up the annotation file for the ribosome biogenesis
-genes.
+## Let's explore our ribi annotation file
 
-Recap: How did we do this?
-
-```{r}
-ribi_annotation <- read_tsv(ribi_annotation_file, comment = "!")
-```
-
-This created a dataframe object, while marking any line starting with
-"!" as a comment, and not part of the dataframe itself. The header will
-still be read into the dataframe, since it was not marked with a "!".
-
-Now we can view the contents and structure:
+Which parts of this dataframe are we interested in?
 
 ```{r}
 ribi_annotation
 ```
 
-```{r}
-str(ribi_annotation)
-```
-
-### Which parts of the dataframe are we interested in?
-
-The datasets in this study named transcripts by their gene IDs, specific
+The datasets in this study identified transcripts by their gene IDs, specific only 
 to *S. cerevisiae* - these can be found in the column 'Systematic
 Name/Complex Accession'. The 'Gene/Complex' column provides a more
 common name for that gene.
@@ -737,6 +738,10 @@ called `ribosome_biogenesis_annotations.txt`, so we'd probably assume
 that these are only genes involved in ribosome biogenesis.
 
 Still, let's double check that to be sure!
+
+### Exercise: Inspect `ribi_annotation` and check whether the genes are, for sure, only involved in ribosomal biogenesis.
+
+*Solution:*
 
 ```{r}
 n_distinct(ribi_annotation$Qualifier)
@@ -755,14 +760,16 @@ So, clearly, we only have genes involved in ribosome biogenesis.
 The most useful part of this annotation file will be to convert the
 yeast gene IDs into more common names for downtstream analyses.
 
-### Exercise 3 (Discussion):
+### Discussion:
 
 Why do you think we provided 1 argument for the `n_distinct()` function,
 but 2 arguments for `distinct()` ?
 
 ## Cleaning up the annotation file
 
-First, let's take only the columns we want from the dataframe:
+### Exercise: Take only the columns we want from the dataframe: the gene names and the systematic IDs. 
+
+*Solution:*
 
 ```{r}
 ribi_annotation_names <- select(ribi_annotation, Gene = "Gene/Complex", SystematicName = "Systematic Name/Complex Accession")
@@ -773,30 +780,13 @@ ribi_annotation_names
 Next, we should check if there are any duplicate gene entries, or if
 each line is unique.
 
-### Exercise 4: Check the number of unique gene name/systematic name combinations. Are there duplicates?
+### Exercise: Check the number of unique gene name/systematic name combinations. Are there duplicates? If yes, create a new dataframe with duplicates removed, and double-check that this was done correctly.
 
-*Hint: You only have to use functions we have already learned.*
+*Solution:*
 
 ```{r}
-ribi_annotation_names
-
 n_distinct(ribi_annotation_names)
 ```
-
-Uh oh. Looks like there are duplicates we don't want.
-
-### Exercise 5: First, create a new dataframe object with duplicates removed. Then, double-check that this was done correctly.
-
-```{r}
-filter(df, pattern)
-
-df %<>%
-    filter(pattern)
-
-df <- df %>%
-    filter(pattern)
-```
-
 
 ```{r}
 ribi_genes <- distinct(ribi_annotation_names)
@@ -810,19 +800,34 @@ Looks like our whole dataframe is made up of distinct entries now!
 
 ## Which ribosome biogenesis genes are periodically expressed during the cell cycle?
 
+We want to filter `ribi_genes` to only include the ones that appear in the periodically_expressed_genes, and make this a new dataframe.
+
 ```{r}
 ribi_genes_periodic <- filter(ribi_genes, SystematicName %in% periodically_expressed_genes)
 
 ribi_genes_periodic
 ```
 
-By doing this, we are just searching for the Systematic Names of the
-genes in the ribi annotation file that pop up in the list of 144
-periodically expressed genes.
-
 We can now see that 34/144 periodically expressed genes are involved in
 ribosome biogenesis (or that 34/187 ribosome biogenesis genes are
 periodically expressed during the cell cycle).
+
+**Note:**
+There are often many ways to arrive at the same solution, even for the same function!
+
+```{r}
+
+ribi_genes_periodic2 <- ribi_genes %>%
+    filter(SystematicName %in% periodically_expressed_genes)
+
+ribi_genes %<>%
+    filter(SystematicName %in% periodically_expressed_genes)
+
+```
+
+In this case, would you want to do option 2 from above? Why or why not?
+
+## Did our favorite gene make the cut?
 
 We can also check if our favorite gene is on this list! It would be easy
 enough to do manually, but let's pretend our dataframe is still really
@@ -838,9 +843,9 @@ It's there! Let's print the line to see what its Systematic Name is.
 filter(ribi_genes_periodic, Gene == "NUG1")
 ```
 
-### Exercise 6: Check whether the gene "RPS6B" is a periodically expressed gene, and try printing its line to see its systematic name.
+### Exercise: Check whether the gene "RPS6B" is a periodically expressed gene, and try printing its line to see its systematic name.
 
-Solution:
+*Solution:*
 
 ```{r}
 "RPS6B" %in% ribi_genes_periodic$Gene
@@ -858,40 +863,11 @@ Up until now, we were looking only at ribosome biogenesis genes, since
 that was a major GO term that came up in the data. What about the genes
 involved in other biological processes?
 
-### Download full gene annotations from Dryad
-
-You should have been able to download the Data Folder from
-[Dryad](https://datadryad.org/stash/dataset/doi:10.5061/dryad.d644f)
-yesterday.
-
-### Exercise 7: Practice unzipping the folder and moving the file `scer-mrna-protein-absolute-estimate.txt` into your ./data directory, using only the command line.
-
-```{bash}
-## gunzip -dk ../Downloads/doi_10_5061_dryad_d644f__v20160422.zip 
-
-## mv ../Downloads/doi_10_5061_dryad_d644f__v20160422/scer-mrna-protein-absolute-estimate.txt ./data 
-```
-
-Let's read the file
-
-```{r}
-scer_names_estimates_file <- "scer-mrna-protein-absolute-estimate.txt"
-
-read_lines(scer_names_estimates_file, n_max = 10)
-```
-
-How would you turn this into a tibble, ignoring the comments starting
-with a "\#" ?
-
-```{r}
-scer_names_estimates <- read_tsv(scer_names_estimates_file, comment = "#")
-
-str(scer_names_estimates)
-```
+Let's read the Dryad file!
 
 The columns `"orf"` and `"gene"` will be useful to us for now.
 
-### Exercise #8: Create a new dataframe with only the columns `"orf"` and `"gene"`.
+Let's create a new dataframe with only these columns.
 
 ```{r}
 scer_gene_names <- select(scer_names_estimates, Gene = gene, SystematicName = orf)
@@ -1025,42 +1001,39 @@ write_csv(mRNA_named, "../data/mRNA_data_with_gene_names.csv")
 ## Reshaping tibbles
 
 Sometimes, we might want to reshape a tibble to make it better formatted
-for plotting/visualization later on. For example, let's go back to
-Dataset01:
-
+for plotting/visualization later on. Dataset01 can be reshaped into a longer, and less wide, format:
 
 ```{r}
 mRNA_named
 
-pivot_longer(mRNA_named, cols = ends_with("fL"), names_to = "Vol_fL", values_to = "log2_ratio") %>%
-    mutate(Vol_fL = parse_double(str_remove(Vol_fL, " fL")))
+pivot_longer(mRNA_named,cols = ends_with("fL"),
+    names_to = "Vol_fL",
+        values_to="log2_ratio")
 ```
 
 What do you notice changed about Dataset01?
 
-This is easier to deal with now, if we want to visualize the data. But
-let's make our lives even easier with the help of a few additional
-functions:
+We might run into issues if all of the cell volumes are formatted as a "(integer) fL".
+
+## Exercise: Look through your cheat sheets. What function(s) can we pipe to remove the " fL" from every value in the "Vol_fL" column?
+
+*Solution:*
 
 ```{r}
-gather(mRNA_named,key=Vol,value="log2_ratio",-SystematicName,-Gene) %>%
-    separate(Vol,into="Vol_fL")
+pivot_longer(mRNA_named,cols = ends_with("fL"),
+    names_to = "Vol_fL",
+        values_to="log2_ratio") %>%
+            mutate(Vol_fL = parse_double(str_remove(Vol_fL, " fL")))
 ```
 
-```{r}
-gather(mRNA_named,key=Vol,value="log2_ratio",-SystematicName,-Gene) %>%
-    separate(Vol,into="Vol_fL")  %>%
-    mutate(Vol_fL = as.numeric(Vol_fL))
-```
-
-Wait, doesn't that look exactly the same? What was the purpose of
-`mutate()`?
+This looks easier to work with now. Let's save it to a new tibble:
 
 ```{r}
-mRNA_data_gathered <- 
-gather(mRNA_data,key=Vol,value="log2_ratio",-Name,-Gene) %>%
-    separate(Vol,into="Vol_fL") %>%
-    mutate(Vol_fL = as.numeric(Vol_fL))
+mRNA_data_pivoted <- 
+pivot_longer(mRNA_named,cols = ends_with("fL"), 
+    names_to = "Vol_fL", 
+        values_to="log2_ratio") %>%
+            mutate(Vol_fL = parse_double(str_remove(Vol_fL, " fL")))
 ```
 
 Now, we can easily pick 3 genes we're most interested in, and plot their
@@ -1072,8 +1045,6 @@ Gabe will guide you through plotting.
 ```{r}
 mRNA_data_3genes <- filter(mRNA_data_gathered, Gene %in% c("ACT1","NOP16","NOP56"))
 ```
-
-Save this just in case:
 
 ```{r}
 write_csv(mRNA_data_3genes, "../data/mRNA_data_3genes.csv")
