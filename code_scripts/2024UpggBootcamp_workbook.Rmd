@@ -21,24 +21,31 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Introduce self.
 
-Points to go through
-1. Utilize green-red sticky
-2. HackMD
-3. Resources, Kayla's printed cheat sheets
-4. Survey
+Points to go through 1. Utilize green-red sticky 2. HackMD 3. Resources,
+Kayla's printed cheat sheets 4. Survey
 
-The first hald of this morning, we'll go through the package called `Tidyverse` which you all should have installed as part of the lesson yesterday. Red sticky if you don't have `Tidyverse` installed.
+The first hald of this morning, we'll go through the package called
+`Tidyverse` which you all should have installed as part of the lesson
+yesterday. Red sticky if you don't have `Tidyverse` installed.
 
 ## Data structure
 
-
 ### Refresher on Data Types
-We will do a quick refresher on data types in R which Krista has touched on a little bit yesterday. These are basically categories of values that computers can read and interpret in different ways. If you know other programming languages, these categories tend to overlap, though might have different names. 
 
-1. Numeric
-Basically, numbers that we know very well. You can perform mathematical operations on them. The types of numeric values you are going to encounter the most are:
+We will do a quick refresher on data types in R which Krista has touched
+on a little bit yesterday. These are basically categories of values that
+computers can read and interpret in different ways. If you know other
+programming languages, these categories tend to overlap, though might
+have different names.
 
-1a. "Double" - represent real numbers (whole numbers and decimals). It is the default value for whole numbers.
+#### 1. Numeric
+
+Basically, numbers that we know very well. You can perform mathematical
+operations on them. The types of numeric values you are going to
+encounter the most are:
+
+1a. "Double" - represent real numbers (whole numbers and decimals). It
+is the default value for whole numbers.
 
 > Reminder about shortcut for making new chunk - `cmd + option + i`
 
@@ -48,20 +55,68 @@ typeof(20.24)
 typeof(pi) # R has built-in constants, e.g., pi
 ```
 
-1b. "Integer" - represent whole numbers only. 
+1b. "Integer" - represent whole numbers only.
 
-Whole numbers are defaulted to `double`. You have to tell R explicitly that a value is `integer`. 
+Whole numbers are defaulted to `double`. You have to tell R explicitly
+that a value is `integer`.
+
 ```{r}
 typeof(as.integer(10))
 ```
 
-You are unlikely to come across a case where `double` and `integer` will make significant changes to your code/performance, but it's good to be aware of the different types of numeric values. Another key point is that, arithmatic operation will automatically coerce `integer` to `double` if needs be.
+You are unlikely to come across a case where `double` and `integer` will
+make significant changes to your code/performance, but it's good to be
+aware of the different types of numeric values. Another key point is
+that, arithmatic operation will automatically coerce `integer` to
+`double` if needs be.
+
 ```{r}
 x <- as.integer(10)
 typeof(x + 11.5)
 ```
 
-Examples of operations you can perform on numerica values. 
+**Valid variable names** There are some names you ***can't*** use as
+variable names, and they are names that you ***shouldn't*** use.
+
+1.  Start with letter
+
+```{r, error=TRUE}
+a.1 <- 1
+x_y <- 2
+2.y <- 3
+_a <- 4
+```
+
+2.  Don't use weird symbols, use `.` or `_`.
+
+    Examples of style guides:
+
+    -   [Google's](https://google.github.io/styleguide/Rguide.xml)
+
+    -   [Jean Fan's](http://jef.works/R-style-guide/)
+
+    -   [Tidyverse's](http://style.tidyverse.org/)
+
+```{r, error=TRUE}
+myHeight <- "7 ft" # camelCase
+my_weight <- "10 lbs" # snake_case
+my.value <- "None"
+my$student <- "xyz" # $ has meaning in R
+my-day <- "sunday" # - is for subtraction
+```
+
+3.  **DO NOT** use [reserved
+    words](https://stat.ethz.ch/R-manual/R-devel/library/base/html/Reserved.html)
+
+```{r, error=TRUE}
+TRUE <- FALSE
+?reserved
+```
+
+4.  Avoid naming variables the same as function names
+
+Examples of operations you can perform on numeric values.
+
 ```{r}
 x <- 3 # Reminder about value assignment
 y <- 4
@@ -71,7 +126,117 @@ x - y # subtract
 x * y # multiply
 x / y # divide
 x ** y # exponent
+x^y # exponent
 103 %% 10 # modulo
+```
+
+#### 2. Logical
+
+Sometimes these values are called `boolean` in other languages. It is
+common enough in programming that you should know about! The only
+possible logical values are `TRUE` and `FALSE` -- case sensitive!!!
+
+```{r}
+typeof(TRUE)
+typeof(FALSE)
+```
+
+```{r}
+x
+y
+x > y
+x < y
+x >= y
+x <= y
+x == y
+x != y
+!(x > y) # same as x <= y
+```
+
+> **Problem with numeric data in logical equivalence**
+
+```{r}
+10 == (sqrt(10)^2) # Why does this return FALSE?
+sqrt(10)^2 # It outputs 10!!
+4 == (sqrt(4)^2) # But why does this work?
+sqrt(4)^2
+```
+
+Without going into the weed, an irrational number like `sqrt(10)` has
+infinite decimal points. So, it is impossible for R to represent all the
+digits as it would take an infinite amount of storage. R has a limited
+degree of `precision` that it can represent an irrational value, which
+makes the term `(sqrt(10)^2)` slightly off from 10.
+
+To circumvent this limitation, you can test for "near equality" in R
+using a function `all.equal()`.
+
+```{r}
+all.equal(10, sqrt(10)^2) # Yay!
+```
+
+**Logical operator**
+
+```{r}
+!TRUE # Not TRUE
+TRUE & FALSE # TRUE and FALSE
+TRUE | FALSE # TRUE or FALSE
+TRUE | TRUE
+xor(TRUE, FALSE) # either x or y, but not both
+xor(TRUE, TRUE) 
+```
+
+#### Character strings
+
+Characters are created by using the `"` (double quote) or `'` (single
+quote) enclosing them.
+
+```{r}
+typeof('abc')
+typeof("123")
+letters
+typeof(letters)
+```
+
+`nchar()` gives you the number of characters in the variable.
+
+```{r}
+name <- "Justin"
+nchar(name)
+```
+
+Simple strings operations - joining strings using `paste()` and
+`paste0()` and spliting strings using `strsplit()`.
+
+***Check whether or not they know how to see possible options for a
+function***
+
+```{r}
+paste(name, "Smith")
+paste("Hello", "World", sep = "_")
+paste0("Hi","My","Name","Is")
+
+strsplit("Hello World", split = " ") # Get a vector of characters
+
+?strsplit
+```
+
+You cannot combine two data types.
+
+```{r, error=TRUE}
+1 + "Hi"
+paste("Hi", 1) # Sometimes R functions are smart enough to `coerce` types automatically when possible. Neat!
+```
+
+**Order of evaluation** Be careful if you changt type or value of a
+variable. Don't short-circuit your code. Options: 1. save as new
+variable or 2. always run code sequentially.
+
+```{r, error=TRUE}
+x <- 1
+x + 2
+x <- ""
+x + 2 # x is no longer numeric
 ```
 
 ### Vectors
@@ -290,8 +455,8 @@ any Tidyverse read function would output a `tibble` by default. This is
 one way to instantiate a tibble. Key components are column names and
 values. Each column can only contain one data type.
 
-Tidyverse is a literal gold mine, and there's no way we're going to cover
-everything in just a few hours! We're going to go through a few
+Tidyverse is a literal gold mine, and there's no way we're going to
+cover everything in just a few hours! We're going to go through a few
 functions that are particularly useful and most commonly used.
 
 ```{r load tidyverse}
@@ -519,8 +684,6 @@ table1 %>%
     summarize(max(cases), mean(cases))
 ```
 
-
-
 ### Exercise
 
 I'll make some dirty, dummy data and let them 1. Load data 2. Rename
@@ -617,7 +780,7 @@ print(periodically_expressed_genes)
 an "array" or a "list" in some other programming languages, BUT R has
 its own version of "list." Essentially, R has both "vector" and "list"
 data types, and they function differently. "Vectors" are what you would
-think of when you think of Python's "array" or "list" 
+think of when you think of Python's "array" or "list"
 
 ```{r}
 str(periodically_expressed_genes)
@@ -777,6 +940,7 @@ each line is unique.
 ```{r}
 n_distinct(ribi_annotation_names)
 ```
+
 
 ```{r}
 ribi_genes <- distinct(ribi_annotation_names)
@@ -987,6 +1151,7 @@ write_csv(mRNA_named, "../processed_files/mRNA_data_with_gene_names.csv")
 ## Reshaping tibbles
 
 Sometimes, we might want to reshape a tibble to make it better formatted
+
 for plotting/visualization later on. Dataset01 can be reshaped into a longer, and less wide, format:
 
 ```{r}
