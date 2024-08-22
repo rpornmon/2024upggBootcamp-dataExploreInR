@@ -335,6 +335,16 @@ x[1:length(x)-1] # exclude last element, flexible for any vector
 x[c(TRUE,FALSE,TRUE,TRUE)] # exclude second element
 ```
 
+Use indexing to manipulate content of the vector.
+
+```{r}
+y <- c(5, 6, 7)
+y
+y[2] <- 1999
+y
+```
+
+
 Get indexes using `which()`
 
 ```{r}
@@ -351,36 +361,38 @@ within `a` that is **greater** than 30.
 a <- runif(20, 1, 100)
 ```
 
-### List
+Answer
+```{r}
+a[a > 30]
+```
 
-List is a more flexible data type - it can contain a mixture elements of
-various data types. We'll go through this really quickly.
+### List
+List is a more flexible data type than vector - it can contain a mixture elements of various data types. We'll breeze through this really quickly.
 
 Creating a list
-
 ```{r}
 my_list <- list("Hello", 1, TRUE) # Mixed types of element
 print(my_list)
 ```
 
+Size of list
 ```{r}
-length(my_list)
+length(my_list) # There are 3 objects in this list
+typeof(my_list) # Doesn't have to contain one specific data type
 ```
 
-Indexing a list
-
+Indexing a list using `[[]]`
 ```{r}
 my_list[[1]]
 ```
 
-Appending a list, list can contain vector
-
+Appending a list, list can even contain vector
 ```{r}
 my_list[[5]] <- 1:10
-my_list
+my_list # Now my_list[[4]] contains nothing (NULL)
 ```
 
-Indexing
+Chain indexing
 
 ```{r}
 my_list[[5]][7]
@@ -389,7 +401,7 @@ my_list[[5]][7]
 A list within a list
 
 ```{r}
-my_list[[4]] <- list("World")
+my_list[[4]] <- list("Hello", "World")
 my_list
 ```
 
@@ -397,16 +409,22 @@ my_list
 my_list[[4]][[1]]
 ```
 
+Combining list
+```{r}
+c(list(1, 2), list(x=3, y=4))
+```
+
+
 ### Data Frame
 
-This is arguably the most useful feature of R. There's a reason we use
-spreadsheets, they show data in inter-relational fashion. And it is
-particularly efficient too.
+This is arguably the most useful feature of R in data analyses. There's a reason we use
+spreadsheets, they show data in inter-relational fashion -- i.e., putting variables from the same observation next to each other. And it is
+particularly storage-efficient too.
 
 Creating a data frame
 
 ```{r}
-df <- data.frame(1:5,
+df <- data.frame(1:5, # it's ok to return to next line if the parenthesis is not closed.
                  6:10)
 df
 ```
@@ -421,14 +439,27 @@ names(df) <- c("first.column", "second.column")
 names(df) # Note how codes are evaluated line-by-line sequentially?
 ```
 
+Or you can add names when you create data frame.
+```{r}
+df2 <- data.frame(height = 100:105,
+                  weight = 120:125)
+df2
+```
+
 You can think of a data frame as a specialized type of `list` (with
 constraints), where each vector is an element of the list. BUT the
-number of rows must be of the same lengths.
+number of rows **must** be of the same length.
+```{r, error=TRUE}
+df3 <- data.frame(height = 100:105,
+                  weight = 120:130)
+```
 
+Data frame is a list!
 ```{r}
 typeof(df)
 ```
 
+Hence, can use list-related functions.
 ```{r}
 length(df)
 df[[2]]
@@ -437,9 +468,9 @@ df[[2]]
 Properties of data frame
 
 ```{r}
-dim(df)
-ncol(df)
+dim(df) # dimension: nrow ncol
 nrow(df)
+ncol(df) 
 ```
 
 Indexing, extracting information from data frame
@@ -452,8 +483,12 @@ df[[1]] # Same as list
 df$first.column # Most common way to do it
 ```
 
-R is a row-based, meaning first index refers to the row number, then
-column number[@afenyi-annan2008; @akaike1974a; @akil2021]
+R data frames are row-based, meaning first index refers to the row number, then
+column number
+
+```{r}
+df
+```
 
 ```{r}
 df[1,2] # row 1, column 2
@@ -465,14 +500,23 @@ Or, you can call by column name, and index like a normal vector.
 df$second.column[1]
 ```
 
+Adding columns
+```{r}
+df$third <- 21:25
+fourth <- runif(5, 10, 100)
+df$fourth <- fourth
+df
+```
+
+
 R has some built-in data frames that you can play with.
 
 ```{r}
-mtcars
+mtcars # motor trend car road tests 1974
 ```
 
 ```{r}
-iris
+iris # Edgar Anderson's Iris data
 ```
 
 ## Tidyverse
