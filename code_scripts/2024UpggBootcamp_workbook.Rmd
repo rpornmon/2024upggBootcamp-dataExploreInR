@@ -304,17 +304,52 @@ system.)
 
 ```{r}
 x
-x[1]
-x[-1]
-x[3:4]
-x[4:1]
-x[1:length(x)-1]
+x[1] # obtain the first element
+x[-1] # obtain all but first element
+x[-2] # all but second element
+x[3:4] # 3rd-4th elements
+x[4:1] # reverse order
+rev(x)
+x[1:length(x)-1] # exclude last element, flexible for any vector
+x[c(TRUE,FALSE,TRUE,TRUE)] # exclude second element
+```
+
+Use indexing to manipulate content of the vector.
+
+```{r}
+y <- c(5, 6, 7)
+y
+y[2] <- 1999
+y
+```
+
+Get indexes using `which()`
+
+```{r}
+x >= 2
+which(x >= 2)
+```
+
+##### Exercise
+
+Use what you learned about vector to return a vector containing elements
+within `a` that is **greater** than 30.
+
+```{r}
+a <- runif(20, 1, 100)
+```
+
+Answer
+
+```{r}
+a[a > 30]
 ```
 
 ### List
 
-List is a more flexible data type - it can contain a mixture elements of
-various data types. We'll go through this really quickly.
+List is a more flexible data type than vector - it can contain a mixture
+elements of various data types. We'll breeze through this really
+quickly.
 
 Creating a list
 
@@ -323,17 +358,19 @@ my_list <- list("Hello", 1, TRUE) # Mixed types of element
 print(my_list)
 ```
 
+Size of list
+
 ```{r}
 length(my_list)
 ```
 
-Indexing a list
+Indexing a list using `[[]]`
 
 ```{r}
 my_list[[1]]
 ```
 
-Appending a list, list can contain vector
+Appending a list, list can even contain vector
 
 ```{r}
 my_list[[5]] <- 1:10
@@ -357,11 +394,18 @@ my_list
 my_list[[4]][[1]]
 ```
 
+Combining list
+
+```{r}
+c(list(1, 2), list(x=3, y=4))
+```
+
 ### Data Frame
 
-This is arguably the most useful feature of R. There's a reason we use
-spreadsheets, they show data in inter-relational fashion. And it is
-particularly efficient too.
+This is arguably the most useful feature of R in data analyses. There's
+a reason we use spreadsheets, they portray multi-dimentional data and
+its relational information between data points across columns -- i.e.,
+putting variables from the same observation next to each other.
 
 Creating a data frame
 
@@ -381,13 +425,31 @@ names(df) <- c("first.column", "second.column")
 names(df) # Note how codes are evaluated line-by-line sequentially?
 ```
 
+Or you can add names when you create data frame.
+
+```{r}
+df2 <- data.frame(height = 100:105,
+                  weight = 120:125)
+df2
+```
+
 You can think of a data frame as a specialized type of `list` (with
 constraints), where each vector is an element of the list. BUT the
-number of rows must be of the same lengths.
+number of rows **must** be of the same length.
+
+```{r, error=TRUE}
+df3 <- data.frame(height = 100:105,
+                  weight = 120:130)
+```
+
+Data frame is a **specialized** list! It has many similarities with lists.
 
 ```{r}
 typeof(df)
+class(df)
 ```
+
+Hence, can use list-related functions.
 
 ```{r}
 length(df)
@@ -412,8 +474,12 @@ df[[1]] # Same as list
 df$first.column # Most common way to do it
 ```
 
-R is a row-based, meaning first index refers to the row number, then
-column number[@afenyi-annan2008; @akaike1974a; @akil2021]
+R data frames are row-based, meaning first index refers to the row
+number, then column number
+
+```{r}
+df
+```
 
 ```{r}
 df[1,2] # row 1, column 2
@@ -423,6 +489,15 @@ Or, you can call by column name, and index like a normal vector.
 
 ```{r}
 df$second.column[1]
+```
+
+Adding columns
+
+```{r}
+df$third <- 21:25
+fourth <- runif(5, 10, 100)
+df$fourth <- fourth
+df
 ```
 
 R has some built-in data frames that you can play with.
@@ -437,190 +512,226 @@ iris
 
 ## Tidyverse
 
-1.  What is Tidyverse? Tidyverse is a collection of R packages that had
-    been designed and developed for data science. R is not a new
-    language, and Tidyverse's philosophy is about reducing the things in
-    R that didn't stand the test of time and introducing cleaner, more
-    understandable grammar into the coding style.
+What is [Tidyverse](https://www.tidyverse.org/)? Tidyverse is a
+collection of R packages that had been designed and developed for data
+science. R is not a new language, and Tidyverse's philosophy is about
+reducing redundancy and improving coding style to be cleaner and more
+intuitive.
 
-Tibble A table is one of the most common way to store and understand
-data. Think about a spreadsheet like Excel or Google Sheets. It portrays
-multi-dimentional data and its relational information between data
-points across columns. So the basis of data exploration and cleanup
-begins with a table. R has a built-in data structure that looks like a
-table called `data frame`. Tidyverse attempts to improve on `data frame`
-and came up with `tibble`. In general, they are about equivalent in
-terms of function. For the sake of this lesson, we'll use `tibble` as
-any Tidyverse read function would output a `tibble` by default. This is
-one way to instantiate a tibble. Key components are column names and
-values. Each column can only contain one data type.
+First, even though we have all installed the package Tidyverse, the
+package has yet been loaded into your environment. You won't have access
+to Tidyverse's functions unless you run `library(tidyverse)`
+
+```{r}
+library(tidyverse)
+```
 
 Tidyverse is a literal gold mine, and there's no way we're going to
 cover everything in just a few hours! We're going to go through a few
 functions that are particularly useful and most commonly used.
 
-```{r load tidyverse}
-library(tidyverse)
-```
+### Tibble
+
+A `tibble` is Tidyverse's attempt to improve on `data frame`. In
+general, they are about equivalent in terms of function. For the sake of
+this lesson, we'll use `tibble` because any Tidyverse's `readr` function
+would output a `tibble` by default. Don't worry about the differences -
+they are, for the most parts, interchangeable.
+
+You can convert a preexisting data frame into a tibble.
 
 ```{r}
-my_tib <- tibble(mtcars)
+my_tib <- as_tibble(mtcars) # Converting a data frame to tibble
+my_tib # looks very similar to data frame
 ```
+
+Another way to create a tibble. Key components are column names and
+values. Each column can only contain one data type.
 
 ```{r}
-names(my_tib)
+my_tib2 <- tibble(name = c("Josh", "Peter"),
+                  income = c(100000000, 20))
+my_tib2
 ```
 
-Conventionally, each row contains observations, each column contains
-variables, and each cell contains values.
+Conventionally, for data frames and tibbles, each row contains
+observations, each column contains variables, and each cell contains
+values.
 
 ```{r}
-mtcars
+my_tib
 ```
 
-```{r}
-df1 <- data.frame(x = c(1,2), y = c(3,4))
-df2 <- tibble(x = c(1,2), y = c(3,4))
-df1
-df2
-```
-
-You can convert any existing data frame into a tibble.
-
-```{r}
-as_tibble(iris)
-```
-
-Subsetting
+Subsetting, same as data frame
 
 ```{r}
 tb <- tibble(
   x = runif(5),
-  y = rnorm(5)
-)
+  y = rnorm(5))
 # Extract by name 1
 tb$x
 # Extract by name 2
 tb[["x"]]
 # Extract by column index 1
 tb[[1]]
-# Extract by column index 2
-tb[,1]
 ```
 
-## Dplyr
+
+```{r}
+# If have time, example of differences between data frame vs tibble
+mtcars[,1]
+as_tibble(mtcars)[,1]
+```
+
+```{r}
+class(tb)
+```
+
+## Dplyr - Data Manipulation
 
 Tidyverse is a meta-package, meaning it includes multiple packages
 within it. One of them is `dplyr` which contains functions involving
-common data manipulation task.
+common data manipulation tasks. Note that these functions generally also work on data frames, not just tibble.
 
 ```{r}
-table1
+table1 # comes with dplyr
 ```
 
-### Select()
+### Select
 
+Select columns you want from a tibble.
 ```{r}
 select(table1, year)
 ```
 
-### Filter()
+> Note how you can refer to the column name directly without having to use "" or put it adjacent to variable name (i.e. table1$year)? That's the power of Tidyverse!
+
+Select multiple columns
+```{r}
+select(table1, country, year)
+```
+
+Use `-` to exclude columns.
+```{r}
+select(table1, -year)
+```
+
+### Filter
 
 Compare to base R, tidyverse is trying to reduce redundancy of repeating
 the name of the variable.
 
+In base R, if you want to look for observations from year 2000:
 ```{r}
 table1[table1$year == 2000,]
 ```
 
+See how `table1` has to be called multiple times? That's redundancy!! Using `filter` reduces redundancy in your code. It filters for observations that match the logical operation you parse in.
+
 ```{r}
-filter(table1, year == 2000) # Much cleaner
+filter(table1, year == 2000) # Using dplyr is much cleaner
 ```
 
-Chaining different functions become wordy and unintuitive to read.
+Nesting different functions become wordy and unintuitive to write and read.
 Tidyverse tries to mitigate this problem by introducing its own grammar
-structure that helps aligning code with how your brain would normally
+structure (which is now introduced in base R as well) that helps organizing the code corresponding to how your brain would normally
 work. Sequentiality is important.
 
 ```{r}
-select(filter(table1, year == 2000), country)
+select(filter(table1, year == 2000), country) # Nesting filter within select is unintuitive because filter is interpreted first, then select
 ```
 
-Instead, you can use `pipe`, this is now even cleaner than before, you
-only have to type the name `table1` once.
+Instead, you can use `pipe`, this is now even cleaner than before, you only have to type the name `table1` once. The symbol for `pipe` is `%>%`. The way `pipe` works is that, it will use the output of the function before `pipe` as the **first argument** of the function after `pipe`. Therefore, most `dplyr` functions put the option for a tibble as first argument, so you can keep sending the tibble down the `pipe` chain. `Pipe` is not limited to just Tidyverse functions.
 
 ```{r}
+# Now, the sequence of steps becomes more intuitive; filter and then select!
 table1 %>%
     filter(year == 2000) %>%
     select(country)
-table1 %>%
-    filter(country == "Afghanistan") %>%
-    select(-country)
 ```
 
-### Mutate()
+### Mutate
 
-Mutate is a very powerful function. It adds another column, and you can
-pull information from different
+Mutate is a very powerful function. It manipulates columns and can add columns as well. You can
+directly pull information from different column within `mutate()`.
 
 ```{r}
 table1 %>%
     mutate(rate = cases / population * 10000) # This doesn't happen in-place. Don't forget to assign it to the same variable or new variable. 
 ```
 
-Note on naming, you don't want to include spaces
+```{r}
+table1
+```
+
+```{r}
+new_table1 <- table1 %>%
+    mutate(rate = cases / population * 10000)
+new_table1
+```
+
+Note on naming columns, you generally don't want to include spaces. Sometimes you have to fix the column names of data files you download from others, especially if they were made in Excel which generally doesn't have problem dealing with white spaces between words.
+
+```{r, error=TRUE}
+my_tib$miles per gallon
+my_tib %>%
+    filter(miles per gallon > 10)
+```
 
 ```{r}
 my_tib$'miles per gallon' <- 1:32 
 my_tib$'miles per gallon'
-
-# my_tib %>% 
-#     filter(miles per gallon > 10)
-# space has meaning in programming!!! 
-
-my_tib %>%
-    filter(`miles per gallon` > 10) # DON"T DO THIS
-
-my_tib$miles_per_gallon <- 1:32
-
 ```
 
-### Arrange()
+
+```{r}
+my_tib %>%
+    filter('miles per gallon' > 10)
+# space has meaning in programming!!!
+
+my_tib$miles_per_gallon <- 1:32 # much better
+```
+
+### Arrange
+
+Arrange helps sorting the rows of a tibble based on a column.
+```{r}
+table1 %>%
+    mutate(rate = cases / population * 10000, .after = year) %>%
+    arrange(desc(rate)) # sort rate in descending order
+```
+
+### Summarize()
+
+Summarize give you statistics for whatever you want!
+```{r}
+table1 %>%
+    summarize(max = max(cases), mean = mean(cases))
+```
+
+### Group_by()
 
 ```{r}
 table1 %>%
-    mutate(rate = cases / population * 10000) %>%
-    arrange(desc(rate))
+    group_by(year) %>%
+    count()
 ```
 
-### Pivoting data
+`summarize()` is particularly useful in combination with `group_by()`
 
-The principles of tidy data seem so obvious that you might wonder if
-you'll ever encounter a dataset that isn't tidy. Unfortunately, however,
-most data that you will encounter will be untidy. There are two main
-reasons:
+```{r}
+table1 %>%
+    group_by(year) %>%
+    summarize(max = max(cases), mean = mean(cases))
+```
 
-Most people aren't familiar with the principles of tidy data, and it's
-hard to derive them yourself unless you spend a lot of time working with
-data.
+## Tidyr
 
-Data is often organised to facilitate some use other than analysis. For
-example, data is often organised to make entry as easy as possible.
+### Reshape/Pivot data
 
-This means for most real analyses, you'll need to do some tidying. The
-first step is always to figure out what the variables and observations
-are. Sometimes this is easy; other times you'll need to consult with the
-people who originally generated the data. The second step is to resolve
-one of two common problems:
+Yes, data might not be tidy when you obtain it from other labs or download from a database. Sometimes, however, data **is** tidy, but it is organized in such a way to facilitate other analyses. You might want to reshape how data looks like to fit your specific analysis. This is where reshaping a tibble comes in - you can spread one variable across multiple columns, or scatter one observation across multiple rows. 
 
-One variable might be spread across multiple columns.
-
-One observation might be scattered across multiple rows.
-
-Typically a dataset will only suffer from one of these problems; it'll
-only suffer from both if you're really unlucky! To fix these problems,
-you'll need the two most important functions in tidyr: pivot_longer()
-and pivot_wider().
+You can use functions from `tidyr` to deal with these cases! `pivot_longer()` and `pivot_wider()`.
 
 ```{r}
 table4a
@@ -629,8 +740,7 @@ table4a
 1999 and 2000 are recording of the same variable (cases) but from
 different years. It is intuitive to place them in different columns next
 to each other if we want to compare by eyes. But in plotting, you might
-want to merge them into one column called "cases". Kayla and Gabriel
-will talk more about this in the afternoon.
+want to merge them into one column called "cases".
 
 ```{r}
 table4a %>%
@@ -639,7 +749,7 @@ table4a %>%
                  values_to = "cases") # What should we call the new column that will contain the original values?
 ```
 
-Note that year is of type `chr`
+Note that year is of type `chr`. We can use `mutate()` to convert type from `chr` to `dbl`.
 
 ```{r}
 table4a %>%
@@ -651,6 +761,8 @@ table4a %>%
 
 ### Pivot Wider
 
+On the opposite end, you might want to spread cases into two columns, one for each year.
+
 ```{r}
 table2
 ```
@@ -661,30 +773,7 @@ table2 %>%
                 values_from = count) # where should the values in new column come from
 ```
 
-### Summarize()
-
-```{r}
-table1 %>%
-    summarize(max = max(cases), mean = mean(cases))
-```
-
-### Group_by()
-
-```{r}
-table1 %>%
-    group_by(year) %>%
-    count
-```
-
-Summarize within group
-
-```{r}
-table1 %>%
-    group_by(year) %>%
-    summarize(max(cases), mean(cases))
-```
-
-### Exercise
+##### Exercise
 
 I'll make some dirty, dummy data and let them 1. Load data 2. Rename
 columns 3. Mutate a new column 4. Sort the column 5. Remove NAs 6.
@@ -749,9 +838,9 @@ fluorescence on DNA microarrays, etc.).
 
 Let's load the relevant datasets that we downloaded yesterday.
 
-Are they in your /Downloads? If yes, no worries. 
+Are they in your /Downloads? If yes, no worries.
 
-## Exercise: Using the UNIX commands you learned yesterday, let's practice moving our downloaded data to the ./raw_data directory. Unzip any zipped files. 
+## Exercise: Using the UNIX commands you learned yesterday, let's practice moving our downloaded data to the ./raw_data directory. Unzip any zipped files.
 
 Now let's read into the files:
 
